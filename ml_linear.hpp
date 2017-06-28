@@ -31,4 +31,11 @@ public:
 
 };
 
+
+class ML_DataOps
+{
+public:
+	/* Return a normalized data set, where the mean is 0 and the std dev is 1 */
+	static Matrix *NormalizeData(Matrix &data);
+};
 #endif /* ml_hpp */
