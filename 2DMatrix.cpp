@@ -66,7 +66,7 @@ Matrix *Matrix::operator*(const Matrix &operand)
 	{
 		for (op2_c_idx = 0; op2_c_idx < operand.cDim; op2_c_idx++)
 		{
-			int runningSum = 0;
+			double runningSum = 0;
 			for (op1_c_idx = 0; op1_c_idx < this->cDim; op1_c_idx++)
 			{
 				Indexer *op1 = new Indexer(op1_r_idx, op1_c_idx);
@@ -133,6 +133,16 @@ void Matrix::SubtractScalar(double scalr)
 	for (idx = 0; idx < (this->rDim * this->cDim); idx++)
 	{
 		this->matrix[idx] = this->matrix[idx] - scalr;
+	}
+}
+
+void Matrix::MultiplyScalar(double scalr)
+{
+	int idx = 0;
+
+	for (idx = 0; idx < (this->rDim * this->cDim); idx++)
+	{
+		this->matrix[idx] = this->matrix[idx] * scalr;
 	}
 }
 
@@ -253,6 +263,27 @@ void Matrix::AddBiasCol()
 
 	this->cDim = this->cDim + 1;
 
+	this->matrix = new_matrix;
+}
+
+void Matrix::Transpose()
+{
+	double *new_matrix = new double[this->rDim * (this->cDim)];
+	int r_idx = 0;
+	int c_idx = 0;
+	int temp = 0;
+
+	for (r_idx = 0; r_idx < this->rDim; r_idx++)
+	{
+		for (c_idx = 0; c_idx < this->cDim; c_idx++)
+		{
+			new_matrix[(c_idx * (this->rDim)) + r_idx] = this->matrix[(r_idx * this->cDim) + c_idx];
+		}
+	}
+	temp = this->cDim;
+	this->cDim = this->rDim;
+	this->rDim = temp;
+	delete this->matrix;
 	this->matrix = new_matrix;
 }
 

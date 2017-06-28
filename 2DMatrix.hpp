@@ -48,6 +48,8 @@ public:
 	void AddBiasCol();
 	void SubtractScalar(double scalr);
 	void PowerScalar(double scalr);
+	void MultiplyScalar(double scalr);
+	void Transpose();
 
 	/* Operators */
 	double &operator[] (Indexer *operand);

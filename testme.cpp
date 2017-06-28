@@ -15,7 +15,10 @@ int main(int argc, const char * argv[]) {
 	Matrix *y = Matrix::LoadMatrix("y1_data.txt");
 	Matrix *theta = new Matrix::Matrix(2, 1);
 
-	double result = ML_LinearOps::computeCost(*X, *y, *theta);
+	ML_LinearOps nonRegLinear = new ML_LinearOps(false);
+	
+	double result = nonRegLinear.computeCost(*X, *y, *theta);
 
+	theta = nonRegLinear.gradientDescent(*X, *y, *theta, 0.0100, 1500);
 	return 0;
 }

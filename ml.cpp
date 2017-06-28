@@ -15,10 +15,11 @@ double ML_LinearOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix 
 	double currentCost = 0;
 	int idx = 0;
 
-	training_X.AddBiasCol();
+	Matrix *X = new Matrix(training_X);
+	X->AddBiasCol();
 
 	/* Calculate the hypothesis */
-	Matrix *result = training_X * training_theta;
+	Matrix *result = (*X) * training_theta;
 
 	if (!result)
 	{
@@ -43,4 +44,42 @@ double ML_LinearOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix 
 	}
 
 	return currentCost;
+}
+
+Matrix *ML_LinearOps::gradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, double alpha, int num_iterations)
+{
+	int numTrainingExamples = training_y.numRows();
+	int iteration_idx = 0;
+	double min_constant = alpha * (1/((double) numTrainingExamples));
+
+	Matrix *result = new Matrix(theta);
+	Matrix *temp_result;
+	Matrix *hypothesis;
+	Matrix *error;
+	Matrix *X = new Matrix(training_X);
+	X->AddBiasCol();
+	Matrix *gradient;
+
+	for (iteration_idx = 0; iteration_idx < num_iterations; iteration_idx++)
+	{
+		hypothesis = (*X) * (*result);
+		error = (*hypothesis) - training_y;
+		X->Transpose();
+		gradient = (*X) * (*error);
+		X->Transpose();
+
+		gradient->MultiplyScalar(min_constant);
+		temp_result = (*result) - (*gradient);
+
+		delete result;
+		delete hypothesis;
+		delete error;
+		delete gradient;
+
+		result = temp_result;
+		printf("%f\n", computeCost(training_X, training_y, *result));
+
+	}
+
+	return result;
 }
