@@ -27,7 +27,11 @@ double ML_LinearOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix 
 		return -1;
 	}
 
-	result = (*result) - training_y;
+	Matrix *temp_result = (*result) - training_y;
+
+	delete result;
+
+	result = temp_result;
 
 	if (!result)
 	{
@@ -42,6 +46,9 @@ double ML_LinearOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix 
 	{
 		currentCost += divisor * (*result)[idx];
 	}
+
+	delete result;
+	delete X;
 
 	return currentCost;
 }
@@ -71,15 +78,21 @@ Matrix *ML_LinearOps::gradientDescent(Matrix &training_X, Matrix &training_y, Ma
 		gradient->MultiplyScalar(min_constant);
 		temp_result = (*result) - (*gradient);
 
+		/* Clean up temporary matrices */
 		delete result;
 		delete hypothesis;
 		delete error;
 		delete gradient;
 
 		result = temp_result;
-		printf("%f\n", computeCost(training_X, training_y, *result));
+
+		if (this->debug_print)
+			printf("LINEAR GRADIENT DESCENT DEBUG PRINT: Iteration: %d, Cost: %f\n",
+			    iteration_idx, computeCost(training_X, training_y, *result));
 
 	}
+
+	delete X;
 
 	return result;
 }

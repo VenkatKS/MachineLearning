@@ -73,9 +73,13 @@ Matrix *Matrix::operator*(const Matrix &operand)
 				Indexer *op2 = new Indexer(op1_c_idx, op2_c_idx);
 
 				runningSum += (*this)[op1] * operand[op2];
+
+				delete op1;
+				delete op2;
 			}
 			Indexer *opIdx = new Indexer(op1_r_idx, op2_c_idx);
 			(*resultant)[opIdx] = runningSum;
+			delete opIdx;
 		}
 	}
 
@@ -166,6 +170,7 @@ void Matrix::printMatrix(Matrix *matrixToPrint)
 			Indexer *access = new Indexer(r_idx, c_idx);
 			printf("%f", (*matrixToPrint)[access]);
 			printf(" ");
+			delete access;
 		}
 		printf("\n");
 	}
@@ -213,6 +218,7 @@ Matrix *Matrix::LoadMatrix(std::string fileName)
 		{
 			Indexer *currentElement = new Indexer(r_idx, c_idx);
 			(*generatedMatrix)[currentElement] = line[c_idx];
+			delete currentElement;
 		}
 	}
 

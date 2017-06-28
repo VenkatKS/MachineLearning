@@ -20,5 +20,10 @@ int main(int argc, const char * argv[]) {
 	double result = nonRegLinear.computeCost(*X, *y, *theta);
 
 	theta = nonRegLinear.gradientDescent(*X, *y, *theta, 0.0100, 1500);
+
+	delete X;
+	delete y;
+	delete theta;
+
 	return 0;
 }
