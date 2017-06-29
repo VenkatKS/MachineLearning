@@ -128,6 +128,26 @@ void Matrix::PowerScalar(double scalr)
 	}
 }
 
+void Matrix::MatrixPower(double scalr)
+{
+	int idx = 0;
+
+	for (idx = 0; idx < (this->rDim * this->cDim); idx++)
+	{
+		this->matrix[idx] = pow(scalr, this->matrix[idx]);
+	}
+}
+
+void Matrix::AddScalar(double scalr)
+{
+	int idx = 0;
+
+	for (idx = 0; idx < (this->rDim * this->cDim); idx++)
+	{
+		this->matrix[idx] = this->matrix[idx] + scalr;
+	}
+}
+
 void Matrix::SubtractScalar(double scalr)
 {
 	if (scalr < 0) printf("WARNING_SubtractScalar: scalr should be positive for subtraction, negative for addition.");
@@ -147,6 +167,16 @@ void Matrix::MultiplyScalar(double scalr)
 	for (idx = 0; idx < (this->rDim * this->cDim); idx++)
 	{
 		this->matrix[idx] = this->matrix[idx] * scalr;
+	}
+}
+
+void Matrix::ReciprocalMultiply(double scalr)
+{
+	int idx = 0;
+
+	for (idx = 0; idx < (this->rDim * this->cDim); idx++)
+	{
+		this->matrix[idx] = (double)(scalr/ ((double)this->matrix[idx]));
 	}
 }
 

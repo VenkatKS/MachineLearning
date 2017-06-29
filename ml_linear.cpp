@@ -86,11 +86,6 @@ Matrix *ML_LinearOps::gradientDescent(Matrix &training_X, Matrix &training_y, Ma
 		delete gradient;
 
 		result = temp_result;
-
-		if (this->debug_print)
-			printf("LINEAR GRADIENT DESCENT DEBUG PRINT: Iteration: %d, Cost: %f\n",
-			    iteration_idx, computeCost(training_X, training_y, *result));
-
 	}
 
 	/* FIXME: Add normalization warning?? */
@@ -131,7 +126,7 @@ Matrix *ML_DataOps::NormalizeData(Matrix &data)
 		Data_Mean[currentMean] = (((double)(colRunningCount)) / ((double) data.numRows()));
 	}
 
-	/* Calculate the Standard Deviation of Each Column (i.e. each feature) */
+	/* Calculate the std. dev. of each column (i.e. each feature) */
 	for (c_idx = 0; c_idx < data.numCols(); c_idx++)
 	{
 		Indexer *colMeanIndex = new Indexer(0, c_idx);

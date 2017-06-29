@@ -17,6 +17,7 @@ class ML_LogOps
 {
 private:
 	bool is_regularized = false;
+
 public:
 	bool debug_print = false;
 
@@ -26,8 +27,9 @@ public:
 	}
 
 	/* Compute the cost of the provided parameters for the provided data set */
-	double computeCost(Matrix &training_X, Matrix &training_y, Matrix &training_theta);
-	Matrix *gradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, double alpha, int num_iterations);
+	static Matrix *sigmoid(Matrix &z);
+	static double computeCost(Matrix &training_X, Matrix &training_y, Matrix &training_theta);
+	static Matrix *gradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, double alpha, int num_iterations);
 };
 
 #endif /* ml_log_hpp */

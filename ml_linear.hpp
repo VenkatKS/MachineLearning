@@ -15,19 +15,12 @@
 /* Linear Regression Machine Learning Operations */
 class ML_LinearOps
 {
-private:
-	bool is_normalized = false;
 public:
 	bool debug_print = false;
 
-	ML_LinearOps(bool is_normalized)
-	{
-		this->is_normalized = is_normalized;
-	}
-
 	/* Compute the cost of the provided parameters for the provided data set */
-	double computeCost(Matrix &training_X, Matrix &training_y, Matrix &training_theta);
-	Matrix *gradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, double alpha, int num_iterations);
+	static double computeCost(Matrix &training_X, Matrix &training_y, Matrix &training_theta);
+	static Matrix *gradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, double alpha, int num_iterations);
 
 };
 

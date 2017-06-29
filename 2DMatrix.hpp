@@ -46,9 +46,12 @@ public:
 	/* Matrix Functions */
 	void AddBiasRow();
 	void AddBiasCol();
+	void AddScalar(double scalr);
 	void SubtractScalar(double scalr);
 	void PowerScalar(double scalr);
+	void MatrixPower(double scalr);
 	void MultiplyScalar(double scalr);
+	void ReciprocalMultiply(double scalr);
 	void Transpose();
 
 	/* Operators */
