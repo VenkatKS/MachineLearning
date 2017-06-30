@@ -6,10 +6,10 @@
 //
 //
 
-#include "2DMatrix.hpp"
 #include <sstream>
 #include <vector>
 #include <math.h>
+#include "include/2DMatrix.hpp"
 
 bool set = false;
 Matrix::Matrix(int rDim, int cDim)

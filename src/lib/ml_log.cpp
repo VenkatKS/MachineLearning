@@ -7,7 +7,7 @@
 //
 
 #include <math.h>
-#include "ml_log.hpp"
+#include "include/ml_log.hpp"
 
 /* Performs the sigmoid function on each item in the provided matrix */
 Matrix *ML_LogOps::sigmoid(Matrix &z)

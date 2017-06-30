@@ -7,7 +7,7 @@
 //
 
 #include <math.h>
-#include "ml_linear.hpp"
+#include "include/ml_linear.hpp"
 
 
 double ML_LinearOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix &training_theta)
