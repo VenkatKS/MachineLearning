@@ -10,9 +10,9 @@
 #include <stdio.h>
 #include <cassert>
 #include <math.h>
-#include "lib/include/2DMatrix.hpp"
-#include "lib/include/ml_linear.hpp"
-#include "lib/include/ml_log.hpp"
+#include "../lib/include/2DMatrix.hpp"
+#include "../lib/include/ml_linear.hpp"
+#include "../lib/include/ml_log.hpp"
 
 /* Deviation should be less than 0.00000000001% from MatLab Test Case */
 #define EPSILON	0.00000000001

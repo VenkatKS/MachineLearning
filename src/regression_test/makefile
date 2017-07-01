@@ -2,8 +2,8 @@
 
 # Library Information
 LIB_NAME=ml.so
-LIB_TOP=lib/
-LIB_PATH_PARENT=lib/build/
+LIB_TOP=../lib/
+LIB_PATH_PARENT=../lib/build/
 
 LIB_FULL_PATH=$(LIB_PATH_PARENT)/$(LIB_NAME)
 
