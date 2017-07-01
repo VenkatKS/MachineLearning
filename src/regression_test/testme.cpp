@@ -10,9 +10,9 @@
 #include <stdio.h>
 #include <cassert>
 #include <math.h>
-#include "lib/include/2DMatrix.hpp"
-#include "lib/include/ml_linear.hpp"
-#include "lib/include/ml_log.hpp"
+#include "../lib/include/2DMatrix.hpp"
+#include "../lib/include/ml_linear.hpp"
+#include "../lib/include/ml_log.hpp"
 
 /* Deviation should be less than 0.00000001% from MatLab Test Case */
 #define EPSILON	0.00000001
@@ -130,7 +130,7 @@ int main(int argc, const char * argv[]) {
 	result_1 = ML_LogOps::computeCost(*X, *y, *theta_1);
 
 	assert(ROUGHLY_EQUAL(result_1, (double) 0.218330193826598));
-	printf("3b) Second Cost Function Test: Passed\n");
+	printf("3c) Second Cost Function Test: Passed\n");
 
 	delete theta_0;
 
@@ -139,7 +139,7 @@ int main(int argc, const char * argv[]) {
 	assert(ROUGHLY_EQUAL((*theta_0)[0],  (double) -0.100000000000000));
 	assert(ROUGHLY_EQUAL((*theta_0)[1],  (double) -12.009216589291150));
 	assert(ROUGHLY_EQUAL((*theta_0)[2],  (double) -11.262842205513591));
-	printf("3c) Log Individual Gradient Test: Passed\n");
+	printf("3d) Log Individual Gradient Test: Passed\n");
 
 	delete theta_0;
 	theta_0 = new Matrix(3, 1);
