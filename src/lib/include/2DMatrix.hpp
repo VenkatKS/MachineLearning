@@ -37,12 +37,13 @@ class Matrix
 public:
 	Matrix(int rDim, int cDim);
 	Matrix(Matrix &other);
+	Matrix(int rDim, int cDim, double *raw_data);
 	~Matrix();
 
 	/* Get/Set */
 	int numCols() { return this->cDim; }
 	int numRows() { return this->rDim; }
-
+	double* getRaw() { return this->matrix; }
 	/* Matrix Functions */
 	void AddBiasRow();
 	void AddBiasCol();

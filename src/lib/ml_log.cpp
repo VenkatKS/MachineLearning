@@ -8,6 +8,7 @@
 
 #include <math.h>
 #include <cassert>
+#include <complex>
 #include "include/ml_log.hpp"
 
 /* Performs the sigmoid function on each item in the provided matrix */
@@ -129,8 +130,20 @@ Matrix *ML_LogOps::gradientCalculate(Matrix &training_X, Matrix &training_y, Mat
 	return gradient;
 }
 
-Matrix *ML_LogOps::StochasticGradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, double alpha, int num_iterations)
+Matrix *ML_LogOps::GradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, double alpha, int num_iterations)
 {
-	/* FIXME: TBD */
-	return NULL;
+	int iteration_idx = 0;
+	Matrix *result = new Matrix(theta);
+	Matrix *X = new Matrix(training_X);
+	X->AddBiasCol();
+
+	for (iteration_idx = 0; iteration_idx < num_iterations; iteration_idx++)
+	{
+		Matrix *nextGradient = ML_LogOps::gradientCalculate(training_X, training_y, *result);
+		nextGradient->MultiplyScalar(alpha);
+		result = (*result) - (*nextGradient);
+	}
+
+	delete X;
+	return result;
 }

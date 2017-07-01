@@ -10,9 +10,28 @@
 #include <stdio.h>
 #include <cassert>
 #include <math.h>
-#include "../lib/include/2DMatrix.hpp"
-#include "../lib/include/ml_linear.hpp"
-#include "../lib/include/ml_log.hpp"
+#include "lib/include/2DMatrix.hpp"
+#include "lib/include/ml_linear.hpp"
+#include "lib/include/ml_log.hpp"
+
+/*
+ *	PLEASE NOTE:
+ *		PLEASE NOTE THAT THIS IS NOT A PART OF THE MACHINE LEARNING LIBRARY.
+ *		THIS IS A REGRESSION TESTING SUITE THAT VERIFIES ANY CHANGES MADE TO
+ *		THE LIBRARY CODE. IT'S DESIGNED TO ENSURE THAT IT'S WITHIN A VERY SMALL
+ *		TOLERANCE OF WHAT THE EQUIVALENT MATLAB RESULTS WOULD BE (WITHIN 0.00000001%).
+ *		YOU CAN SAFELY DISREGARD THIS FILE IF YOU ARE NOT INTERESTED IN MAKING CHANGES
+ *		TO THE LIBRARY CODE.
+ *
+ *
+ */
+
+
+
+/* Uncomment this to run stress tests */
+/*
+#define STRESS_TEST
+*/
 
 /* Deviation should be less than 0.00000001% from MatLab Test Case */
 #define EPSILON	0.00000001
@@ -130,7 +149,7 @@ int main(int argc, const char * argv[]) {
 	result_1 = ML_LogOps::computeCost(*X, *y, *theta_1);
 
 	assert(ROUGHLY_EQUAL(result_1, (double) 0.218330193826598));
-	printf("3c) Second Cost Function Test: Passed\n");
+	printf("3b) Second Cost Function Test: Passed\n");
 
 	delete theta_0;
 
@@ -139,12 +158,37 @@ int main(int argc, const char * argv[]) {
 	assert(ROUGHLY_EQUAL((*theta_0)[0],  (double) -0.100000000000000));
 	assert(ROUGHLY_EQUAL((*theta_0)[1],  (double) -12.009216589291150));
 	assert(ROUGHLY_EQUAL((*theta_0)[2],  (double) -11.262842205513591));
-	printf("3d) Log Individual Gradient Test: Passed\n");
+	printf("3c) Log Individual Gradient Test: Passed\n");
 
 	delete theta_0;
 	theta_0 = new Matrix(3, 1);
-	theta_0 = ML_LogOps::StochasticGradientDescent(*X, *y, *theta_0, 0.01, 400);
 
+#if STRESS_TEST
+	printf("Stress Test Enabled. This will take a while.....\n");
+	theta_0 = ML_LogOps::GradientDescent(*X, *y, *theta_0, 0.001, 3000000);
+	result_1 = ML_LogOps::computeCost(*X, *y, *theta_0);
+
+	assert (theta_0->numRows() == 3);
+	assert (theta_0->numCols() == 1);
+	assert (ROUGHLY_EQUAL((*theta_0)[0], -21.067462449096109));
+	assert (ROUGHLY_EQUAL((*theta_0)[1], 0.173509794273152));
+	assert (ROUGHLY_EQUAL((*theta_0)[2], 0.168334317694033));
+	assert (ROUGHLY_EQUAL(result_1, 0.206392658299166));
+	printf("3d) Stress Log Gradient Descent Test: Passed.\n");
+
+#else
+	theta_0 = ML_LogOps::GradientDescent(*X, *y, *theta_0, 0.001, 10000);
+	result_1 = ML_LogOps::computeCost(*X, *y, *theta_0);
+
+	assert (theta_0->numRows() == 3);
+	assert (theta_0->numCols() == 1);
+	assert (ROUGHLY_EQUAL((*theta_0)[0], -0.668966029322792));
+	assert (ROUGHLY_EQUAL((*theta_0)[1], 0.015091499161493));
+	assert (ROUGHLY_EQUAL((*theta_0)[2], 0.005662370305905));
+	assert (ROUGHLY_EQUAL(result_1, 0.585027498817674));
+	printf("3d) Non-Stress Log Gradient Descent Test: Passed.\n");
+#endif
+	
 	printf("\n\nDONE: All Pass within a deviation less than %e %% from MatLab's results.\n", EPSILON);
 	return 0;
 }

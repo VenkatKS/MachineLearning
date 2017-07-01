@@ -35,6 +35,14 @@ Matrix::Matrix(Matrix &other)
 	memcpy(this->matrix, other.matrix, sizeof(double) * (rDim * cDim));
 }
 
+Matrix::Matrix(int rDim, int cDim, double *raw_data)
+{
+	this->cDim = cDim;
+	this->rDim = rDim;
+
+	this->matrix = raw_data;
+}
+
 double &Matrix::operator[](Indexer *operand)
 {
 	if (operand->rowID >= this->numRows() || operand->colID >= this->numCols())
