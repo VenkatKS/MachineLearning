@@ -1,6 +1,6 @@
 //
 //  Matrix.hpp
-//  
+//
 //
 //  Created by Venkat Srinivasan on 6/25/17.
 //
@@ -48,9 +48,11 @@ public:
 	void AddBiasCol();
 	void AddScalar(double scalr);
 	void SubtractScalar(double scalr);
+	void SubtractFromScalar(double scalr);
 	void PowerScalar(double scalr);
 	void MatrixPower(double scalr);
 	void MultiplyScalar(double scalr);
+	void Log_e();
 	void ReciprocalMultiply(double scalr);
 	void Transpose();
 

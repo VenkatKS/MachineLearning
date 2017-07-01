@@ -1,6 +1,6 @@
 //
 //  Matrix.cpp
-//  
+//
 //
 //  Created by Venkat Srinivasan on 6/25/17.
 //
@@ -97,7 +97,7 @@ Matrix *Matrix::operator-(const Matrix &operand)
 	for (idx = 0; idx < (this->rDim * this->cDim); idx++)
 	{
 		resultant->matrix[idx] = this->matrix[idx] - operand.matrix[idx];
- 	}
+	}
 
 	return resultant;
 }
@@ -157,6 +157,28 @@ void Matrix::SubtractScalar(double scalr)
 	for (idx = 0; idx < (this->rDim * this->cDim); idx++)
 	{
 		this->matrix[idx] = this->matrix[idx] - scalr;
+	}
+}
+
+void Matrix::SubtractFromScalar(double scalr)
+{
+	if (scalr < 0) printf("WARNING_SubtractScalar: scalr should be positive for subtraction, negative for addition.");
+
+	int idx = 0;
+
+	for (idx = 0; idx < (this->rDim * this->cDim); idx++)
+	{
+		this->matrix[idx] = scalr - this->matrix[idx];
+	}
+}
+
+void Matrix::Log_e()
+{
+	int idx = 0;
+
+	for (idx = 0; idx < (this->rDim * this->cDim); idx++)
+	{
+		this->matrix[idx] = log(this->matrix[idx]);
 	}
 }
 
@@ -235,7 +257,7 @@ Matrix *Matrix::LoadMatrix(std::string fileName)
 				lineTokens.push_back(value);
 			}
 		}
-	
+
 		lines.push_back(lineTokens);
 	}
 

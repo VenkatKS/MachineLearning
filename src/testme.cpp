@@ -21,6 +21,8 @@
 
 int main(int argc, const char * argv[]) {
 
+	int idx = 0;
+
 	printf("MLLib Regression Testing: \n\n\n");
 
 	/* Single-Feature Regression */
@@ -103,12 +105,24 @@ int main(int argc, const char * argv[]) {
 	delete theta_0;
 	delete theta_1;
 
-	printf("\n\nTesting Multi-Feature Log Regression and Classification......\n");
+	printf("\n\n3) Testing Multi-Feature Log Regression and Classification......\n");
 
-	/* Multi-Feature Classification */
-	theta_0 = new Matrix(100, 1);
+	/* Single-Feature Classification */
+	X = Matrix::LoadMatrix("data/classification/X1_data_log_1.txt");
+	y = Matrix::LoadMatrix("data/classification/y1_data_log_1.txt");
+	theta_0 = new Matrix::Matrix(3, 1);
+	theta_1 = new Matrix::Matrix(3, 1);
+
 	Matrix *sigmoid_result = ML_LogOps::sigmoid(*theta_0);
+	for (idx = 0; idx < (sigmoid_result->numCols() * sigmoid_result->numRows()); idx++)
+		assert ((*sigmoid_result)[idx] == 0.5);
+	printf("3a) First Sigmoid Function Test: Passed\n");
 
+	result_0 = ML_LogOps::computeCost(*X, *y, *theta_0);
 
+	assert(ROUGHLY_EQUAL(result_0, (double) 0.693147180559946));
+	printf("3b) First Cost Function Test: Passed\n");
+
+	printf("\n\nDONE: All Pass within a deviation of %e percent from MatLab's results.\n", EPSILON);
 	return 0;
 }
