@@ -29,7 +29,8 @@ public:
 	/* Compute the cost of the provided parameters for the provided data set */
 	static Matrix *sigmoid(Matrix &z);
 	static double computeCost(Matrix &training_X, Matrix &training_y, Matrix &training_theta);
-	static Matrix *gradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, double alpha, int num_iterations);
+	static Matrix *gradientCalculate(Matrix &training_X, Matrix &training_y, Matrix &theta);
+	static Matrix *StochasticGradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, double alpha, int num_iterations);
 };
 
 #endif /* ml_log_hpp */

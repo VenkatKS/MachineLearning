@@ -9,6 +9,7 @@
 #include <sstream>
 #include <vector>
 #include <math.h>
+#include <cassert>
 #include "include/2DMatrix.hpp"
 
 bool set = false;
@@ -36,6 +37,9 @@ Matrix::Matrix(Matrix &other)
 
 double &Matrix::operator[](Indexer *operand)
 {
+	if (operand->rowID >= this->numRows() || operand->colID >= this->numCols())
+		assert(0);
+
 	return (this->matrix[(operand->rowID * this->cDim) + operand->colID]);
 }
 
@@ -46,6 +50,9 @@ double &Matrix::operator[](int index)
 
 const double &Matrix::operator[] (const Indexer *operand)
 const {
+	if (operand->rowID >= this->rDim || operand->colID >= this->cDim)
+		assert(0);
+
 	return (this->matrix[(operand->rowID * this->cDim) + operand->colID]);
 }
 

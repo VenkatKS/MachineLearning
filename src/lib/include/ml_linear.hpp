@@ -22,6 +22,8 @@ public:
 	static double computeCost(Matrix &training_X, Matrix &training_y, Matrix &training_theta);
 	static Matrix *gradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, double alpha, int num_iterations);
 
+	/* FIXME: Implement normal equation */
+	static Matrix *normalEquation(Matrix &training_X, Matrix &training_y, Matrix &theta, double alpha, int num_iterations);
 };
 
 

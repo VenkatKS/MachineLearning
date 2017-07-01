@@ -24,6 +24,7 @@ Matrix *ML_LogOps::sigmoid(Matrix &z)
 	return &Sigmoid_Matrix;
 }
 
+/* Assumptions: Features in columns, examples in rows */
 double ML_LogOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix &training_theta)
 {
 	/* cost = (1/m) * sum((-1 * y) .* log(hyp) - ((1-y) .* log(1 - hyp))); */
@@ -80,4 +81,56 @@ double ML_LogOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix &tr
 	/* FIXME: Add Regularization Expression */
 
 	return sum_result[0];
+}
+
+Matrix *ML_LogOps::gradientCalculate(Matrix &training_X, Matrix &training_y, Matrix &theta)
+{
+	/* 1/m * sum((hyp - y) .* X) */
+	int numTrainingSet = training_X.numRows();
+	Matrix &X = *(new Matrix(training_X));
+	X.AddBiasCol();
+	int c_idx, r_idx = 0;
+	double constant = ((double) 1.0) / ((double) numTrainingSet);
+	Matrix *hypothesis = sigmoid(*(X * theta));
+	Matrix *TermOne = (*hypothesis) - training_y;
+	Matrix *TermTwo = new Matrix(X.numRows(), X.numCols());
+	Matrix *gradient = new Matrix(1, theta.numRows());
+
+	delete hypothesis;
+
+	assert(TermOne->numCols() == 1);
+	for (r_idx = 0; r_idx < X.numRows(); r_idx++)
+	{
+		for (c_idx = 0; c_idx < X.numCols(); c_idx++)
+		{
+			Indexer *currentIndex = new Indexer(r_idx, c_idx);
+			(*TermTwo)[currentIndex] = (*TermOne)[r_idx] * X[currentIndex];
+			delete currentIndex;
+		}
+	}
+
+	for (c_idx = 0; c_idx < TermTwo->numCols(); c_idx++)
+	{
+		double runningColCount = 0;
+		for (r_idx = 0; r_idx < TermTwo->numRows(); r_idx++)
+		{
+			Indexer *currentIndex = new Indexer(r_idx, c_idx);
+			runningColCount = runningColCount + (*TermTwo)[currentIndex];
+			delete currentIndex;
+		}
+		Indexer *currentMean = new Indexer(0, c_idx);
+		(*gradient)[currentMean] = runningColCount;
+	}
+
+	gradient->MultiplyScalar(constant);
+
+	gradient->Transpose();
+
+	return gradient;
+}
+
+Matrix *ML_LogOps::StochasticGradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, double alpha, int num_iterations)
+{
+	/* FIXME: TBD */
+	return NULL;
 }

@@ -10,12 +10,12 @@
 #include <stdio.h>
 #include <cassert>
 #include <math.h>
-#include "../lib/include/2DMatrix.hpp"
-#include "../lib/include/ml_linear.hpp"
-#include "../lib/include/ml_log.hpp"
+#include "lib/include/2DMatrix.hpp"
+#include "lib/include/ml_linear.hpp"
+#include "lib/include/ml_log.hpp"
 
-/* Deviation should be less than 0.00000000001% from MatLab Test Case */
-#define EPSILON	0.00000000001
+/* Deviation should be less than 0.00000001% from MatLab Test Case */
+#define EPSILON	0.00000001
 #define ROUGHLY_EQUAL(_double_1, _double_2)	\
 	((fabs((double) ((_double_1 - _double_2)/(_double_2))) * 100) < ((double) EPSILON))
 
@@ -123,6 +123,28 @@ int main(int argc, const char * argv[]) {
 	assert(ROUGHLY_EQUAL(result_0, (double) 0.693147180559946));
 	printf("3b) First Cost Function Test: Passed\n");
 
-	printf("\n\nDONE: All Pass within a deviation of %e percent from MatLab's results.\n", EPSILON);
+	(*theta_1)[0] = -24;
+	(*theta_1)[1] = (double) 0.20;
+	(*theta_1)[2] = (double) 0.20;
+
+	result_1 = ML_LogOps::computeCost(*X, *y, *theta_1);
+
+	assert(ROUGHLY_EQUAL(result_1, (double) 0.218330193826598));
+	printf("3b) Second Cost Function Test: Passed\n");
+
+	delete theta_0;
+
+	theta_0 = new Matrix(3, 1);
+	theta_0 = ML_LogOps::gradientCalculate(*X, *y, *theta_0);
+	assert(ROUGHLY_EQUAL((*theta_0)[0],  (double) -0.100000000000000));
+	assert(ROUGHLY_EQUAL((*theta_0)[1],  (double) -12.009216589291150));
+	assert(ROUGHLY_EQUAL((*theta_0)[2],  (double) -11.262842205513591));
+	printf("3c) Log Individual Gradient Test: Passed\n");
+
+	delete theta_0;
+	theta_0 = new Matrix(3, 1);
+	theta_0 = ML_LogOps::StochasticGradientDescent(*X, *y, *theta_0, 0.01, 400);
+
+	printf("\n\nDONE: All Pass within a deviation less than %e %% from MatLab's results.\n", EPSILON);
 	return 0;
 }
