@@ -82,6 +82,34 @@ enum BooleanOps
 };
 ```
 Calling the function with these enumerator values will perform the operations specified in the comments above each enum value to every element in the matrix independently. If using the function that takes in another matrix, every corresponding element in the provided matrix will be used to operate on the first matrix's values (depending on the type of op specified by the enum value). Obviously, this means that the two matrices must have the same dimensions -- if not, no operation will be performed. More operations will be added here as time goes on, but it's pretty straightforward to add your own if needed.
+### Other General Matrix Operations
+There are other general operations that can be performed on a matrix as well. These include transposing a matrix, natural logging every element in the matrix, and getting the mean/standard deviation of every column in the matrix. These can be done using the following functions:
+```C++
+void Transpose();
+void Log_e();
+
+Matrix *Mean();
+Matrix *StdDev();
+
+```
+Transposing and logging the matrix will do the action in place, while getting the mean/std.dev. of each row will return a row-vector with the respective values.
+### Matrix To Matrix Operations
+Simple actions like matrix multiplication can be done using the standard overloaded operators:
+```C++
+	Matrix &a = (*new Matrix(1, 2));
+	Matrix &b = (*new Matrix(2, 3));
+	Matrix &c = (* new Matrix(1, 2));
+	...
+	/* Multiplying Matrices */
+	Matrix *mult = a * b; /* Will return a 1x3 Matrix */
+	Matrix *mult2 = b * a; /* Will return a NULL since dimensions don't line up */
+	...
+	/* Subtracting Matricies */
+	Matrix add = a - c; /* Will return the difference 1x2 Matrix */
+	Matrix add2 = a - b; /* Will return a NULL since dimensions don't match */
+	...
+	Etc.
+```
 ## Regression Library
 ## Classification Library
 ## Neural Networks Library
