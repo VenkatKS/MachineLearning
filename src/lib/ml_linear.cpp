@@ -95,6 +95,14 @@ Matrix *ML_LinearOps::gradientDescent(Matrix &training_X, Matrix &training_y, Ma
 	return result;
 }
 
+Matrix *ML_LinearOps::Predict(Matrix &predict_X, Matrix &theta)
+{
+	Matrix *X = new Matrix(predict_X);
+	X->AddBiasCol();
+	Matrix *result = (*X) * theta;
+	return result;
+}
+
 /*
  *	Assumptions:
  *		Matrix data is a dataset where the columns contain parameters/features and
@@ -137,3 +145,4 @@ Matrix *ML_DataOps::NormalizeData(Matrix &data)
 
 	return &Data_Normalized;
 }
+

@@ -1,7 +1,6 @@
 # MachineLearning
 
 This repository contains a simple machine learning library with a collection of the most commonly used machine learning algorithms. The library contains support of r This is a work in progress and is not completed.
-
 ## Linear Algebra Library
 The Linear Algebra part of the library is the basis for everything else. It's very straight forward, as it only implements the necessary matricies and matrix operations. The full matrix struct definition file can be found under 2DMatrix.hpp, but here is the recap of what the linear algebra library can do:
 ### Accessing a Matrix
@@ -122,11 +121,15 @@ static Matrix *LoadMatrix(std::string fileName);
 ```
 The load matrix function returns a fully loaded matrix from an ascii file, using new-lines as row divisors and commas as column divisors. Will add support for MATLAB file versions soon.
 ## Regression Library
+### General Assumptions
+The machine learning library for regression and classification problems assume that you store the different kinds of features in each column and the different examples in each row. So, for any ML function in this library, the matrix for the training sets should be ordered in the form of each distinct feature being in its own column and each distinct training example being in its own row.
+### Features
 The regression library has several features that make it easy to optimize and compute the cost for regression problems.
 ```C++
-	static double computeCost(Matrix &training_X, Matrix &training_y, Matrix &training_theta);
-	static Matrix *gradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, double alpha, int num_iterations);
+static double computeCost(Matrix &training_X, Matrix &training_y, Matrix &training_theta);
+static Matrix *gradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, double alpha, int num_iterations);
+static Matrix *Predict(Matrix &predict_X, Matrix &theta);
 ```
-Calling into the cost function with a provided training feature values and their associated results, along with anticipated training factor constants, will provide back the cost of the training factors using the squared cost function. To actually get the optimized factors, you can call into the gradientDescent function with a starting set of factors, along with the provided data and a desired learning rate and a limit on the number of times to run. The gradientDescent function will use the linear gradient descent algorithm to solve for optimum factors and will return it as a Matrix.
+Calling into the cost function with a provided training feature values and their associated results, along with anticipated training factor constants, will provide back the cost of the training factors using the squared cost function. To actually get the optimized factors, you can call into the gradientDescent function with a starting set of factors, along with the provided data and a desired learning rate and a limit on the number of times to run. The gradientDescent function will use the linear gradient descent algorithm to solve for optimum factors and will return it as a Matrix. The Predict function will, given a series of features and their examples and the feature factors, will give the estimated/predicted results.
 ## Classification Library
 ## Neural Networks Library

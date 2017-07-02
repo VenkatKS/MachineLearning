@@ -223,9 +223,7 @@ int main(int argc, const char * argv[]) {
 	printf("3e) Predictions Match Expected Accuracy Test: Passed\n");
 
 	delete result;
-
 #endif
-
 
 
 	delete X;
