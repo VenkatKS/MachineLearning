@@ -40,7 +40,7 @@ double ML_LinearOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix 
 		return -1;
 	}
 
-	result->PowerScalar(2);
+	result->operateOnMatrixValues(2, OP_RAISE_EVERY_MATRIX_ELEMENT_TO_SCALAR_POWER);
 
 	double divisor = (1.0 / (2.0 * (double) numTrainingExamples));
 	for (idx = 0; idx < numTrainingExamples; idx++)
@@ -76,7 +76,7 @@ Matrix *ML_LinearOps::gradientDescent(Matrix &training_X, Matrix &training_y, Ma
 		gradient = (*X) * (*error);
 		X->Transpose();
 
-		gradient->MultiplyScalar(min_constant);
+		gradient->operateOnMatrixValues(min_constant, OP_MULTIPLY_SCALAR_WITH_EVERY_MATRIX_ELEMENT);
 		temp_result = (*result) - (*gradient);
 
 		/* Clean up temporary matrices */

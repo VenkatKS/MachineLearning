@@ -15,13 +15,13 @@
 Matrix *ML_LogOps::sigmoid(Matrix &z)
 {
 	Matrix &Sigmoid_Matrix = *(new Matrix(z));
-	Sigmoid_Matrix.MultiplyScalar(-1.0);
+	Sigmoid_Matrix.operateOnMatrixValues(-1.0, OP_MULTIPLY_SCALAR_WITH_EVERY_MATRIX_ELEMENT);
 
 	double exponent = exp((double) 1.0);
-	Sigmoid_Matrix.MatrixPower(exponent);
-	Sigmoid_Matrix.AddScalar(1);
-	Sigmoid_Matrix.ReciprocalMultiply(1.0);
-	
+	Sigmoid_Matrix.operateOnMatrixValues(exponent, OP_RAISE_SCALAR_TO_EVERY_MATRIX_ELEMENT_POWER);
+	Sigmoid_Matrix.operateOnMatrixValues(1, OP_ADD_SCALAR_TO_EVERY_MATRIX_ELEMENT);
+	Sigmoid_Matrix.operateOnMatrixValues(1.0, OP_INVERT_EVERY_MATRIX_ELEMENT_AND_MULTIPLY_SCALAR);
+
 	return &Sigmoid_Matrix;
 }
 
@@ -40,16 +40,16 @@ double ML_LogOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix &tr
 	Matrix *hypothesis = sigmoid(*(X * training_theta));
 
 	Matrix &scale = *(new Matrix(training_y));
-	scale.MultiplyScalar(-1);
+	scale.operateOnMatrixValues(-1, OP_MULTIPLY_SCALAR_WITH_EVERY_MATRIX_ELEMENT);
 
 	Matrix &scale_2 = *(new Matrix(training_y));
-	scale_2.SubtractFromScalar(1);
+	scale_2.operateOnMatrixValues(1, OP_SUBTRACT_EVERY_MATRIX_ELEMENT_FROM_SCALAR);
 
 	Matrix &hypothesis2 = *(new Matrix(*hypothesis));
 
 	hypothesis->Log_e();
 
-	hypothesis2.SubtractFromScalar(1);
+	hypothesis2.operateOnMatrixValues(1, OP_SUBTRACT_EVERY_MATRIX_ELEMENT_FROM_SCALAR);
 	hypothesis2.Log_e();
 
 	scale.Transpose();
@@ -75,7 +75,7 @@ double ML_LogOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix &tr
 		sum_result[currentMean] = runningColCount;
 	}
 
-	sum_result.MultiplyScalar((double) ((double)1.0 / (double) numTrainingExamples));
+	sum_result.operateOnMatrixValues((double) ((double)1.0 / (double) numTrainingExamples), OP_MULTIPLY_SCALAR_WITH_EVERY_MATRIX_ELEMENT);
 
 	assert(sum_result.numCols() == 1 && sum_result.numRows() == 1);
 
@@ -123,7 +123,7 @@ Matrix *ML_LogOps::gradientCalculate(Matrix &training_X, Matrix &training_y, Mat
 		(*gradient)[currentMean] = runningColCount;
 	}
 
-	gradient->MultiplyScalar(constant);
+	gradient->operateOnMatrixValues(constant, OP_MULTIPLY_SCALAR_WITH_EVERY_MATRIX_ELEMENT);
 
 	gradient->Transpose();
 
@@ -140,7 +140,8 @@ Matrix *ML_LogOps::GradientDescent(Matrix &training_X, Matrix &training_y, Matri
 	for (iteration_idx = 0; iteration_idx < num_iterations; iteration_idx++)
 	{
 		Matrix *nextGradient = ML_LogOps::gradientCalculate(training_X, training_y, *result);
-		nextGradient->MultiplyScalar(alpha);
+		nextGradient->operateOnMatrixValues(alpha, OP_MULTIPLY_SCALAR_WITH_EVERY_MATRIX_ELEMENT);
+
 		result = (*result) - (*nextGradient);
 	}
 

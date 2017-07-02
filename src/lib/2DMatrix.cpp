@@ -187,6 +187,37 @@ void Matrix::SubtractFromScalar(double scalr)
 	}
 }
 
+void Matrix::operateOnMatrixValues(double scalar, ScalarOps opType)
+{
+	switch (opType)
+	{
+		case OP_ADD_SCALAR_TO_EVERY_MATRIX_ELEMENT:
+			AddScalar(scalar);
+			return;
+		case OP_SUBTRACT_SCALAR_FROM_EVERY_MATRIX_ELEMENT:
+			SubtractScalar(scalar);
+			return;
+		case OP_MULTIPLY_SCALAR_WITH_EVERY_MATRIX_ELEMENT:
+			MultiplyScalar(scalar);
+			return;
+		case OP_RAISE_EVERY_MATRIX_ELEMENT_TO_SCALAR_POWER:
+			PowerScalar(scalar);
+			return;
+		case OP_SUBTRACT_EVERY_MATRIX_ELEMENT_FROM_SCALAR:
+			SubtractFromScalar(scalar);
+			return;
+		case OP_RAISE_SCALAR_TO_EVERY_MATRIX_ELEMENT_POWER:
+			MatrixPower(scalar);
+			return;
+		case OP_INVERT_EVERY_MATRIX_ELEMENT_AND_MULTIPLY_SCALAR:
+			ReciprocalMultiply(scalar);
+			return;
+		default:
+			assert (0);
+			break;
+	}
+}
+
 void Matrix::Log_e()
 {
 	int idx = 0;
