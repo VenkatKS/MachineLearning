@@ -27,9 +27,8 @@
 
 
 /* Uncomment this to run stress tests */
-/*
-#define STRESS_TEST
-*/
+
+#define STRESS_TEST 0
 
 /* Deviation should be less than 0.00000001% from MatLab Test Case */
 #define EPSILON	0.00000001
@@ -188,6 +187,18 @@ int main(int argc, const char * argv[]) {
 	assert (ROUGHLY_EQUAL(result_1, 0.206392658299166));
 	printf("3d) Stress Log Gradient Descent Test: Passed.\n");
 
+	Matrix *temp_y = ML_LogOps::Predict(*X, *theta_0, 0.5);
+	temp_y->operateOnMatrixValues(y, BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_EQUAL_TO_SCALAR);
+	Matrix *result = temp_y->Mean();
+
+	assert (result->numCols == 1);
+	assert (result->numRows == 1);
+	assert ((*result)[0] == 0.890000000000000);
+
+	printf("3e) Predictions Match Expected Accuracy Test: Passed\n");
+
+	delete result;
+
 #else
 	theta_0_temp = ML_LogOps::GradientDescent(*X, *y, *theta_0, 0.001, 10000);
 	delete theta_0;
@@ -201,7 +212,22 @@ int main(int argc, const char * argv[]) {
 	assert (ROUGHLY_EQUAL((*theta_0)[2], 0.005662370305905));
 	assert (ROUGHLY_EQUAL(result_1, 0.585027498817674));
 	printf("3d) Non-Stress Log Gradient Descent Test: Passed.\n");
+
+	Matrix *temp_y = ML_LogOps::Predict(*X, *theta_0, 0.5);
+	temp_y->operateOnMatrixValues(y, BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_EQUAL_TO_SCALAR);
+	Matrix *result = temp_y->Mean();
+	assert (result->numCols() == 1);
+	assert (result->numRows() == 1);
+	assert ((*result)[0] == 0.600000000000000);
+
+	printf("3e) Predictions Match Expected Accuracy Test: Passed\n");
+
+	delete result;
+
 #endif
+
+
+
 	delete X;
 	delete y;
 	delete theta_0;

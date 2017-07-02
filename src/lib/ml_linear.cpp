@@ -106,53 +106,10 @@ Matrix *ML_DataOps::NormalizeData(Matrix &data)
 	int r_idx = 0;
 	int c_idx = 0;
 
-	/* Row Vectors for storing the mean and std. dev. for each training feature across all examples */
-	Matrix &Data_Mean = *(new Matrix(1, data.numCols()));
-	Matrix &Data_STD = *(new Matrix(1, data.numCols()));
-
 	/* Calculate the mean of each column (i.e. each feature) */
-	for (c_idx = 0; c_idx < data.numCols(); c_idx++)
-	{
-		double colRunningCount = 0;
-
-		for (r_idx = 0; r_idx < data.numRows(); r_idx++)
-		{
-			Indexer *currentIndex = new Indexer(r_idx, c_idx);
-			colRunningCount = colRunningCount + data[currentIndex];
-			delete currentIndex;
-		}
-
-		Indexer *currentMean = new Indexer(0, c_idx);
-		Data_Mean[currentMean] = (((double)(colRunningCount)) / ((double) data.numRows()));
-		delete currentMean;
-	}
-
+	Matrix &Data_Mean = (*data.Mean());
 	/* Calculate the std. dev. of each column (i.e. each feature) */
-	for (c_idx = 0; c_idx < data.numCols(); c_idx++)
-	{
-		Indexer *colMeanIndex = new Indexer(0, c_idx);
-		double colRunningCount = 0;
-		double colMean = Data_Mean[colMeanIndex];
-
-		for (r_idx = 0; r_idx < data.numRows(); r_idx++)
-		{
-			Indexer *currentIndex = new Indexer(r_idx, c_idx);
-
-			double indexValue = data[currentIndex];
-			indexValue = indexValue - colMean;
-			indexValue = fabs(indexValue);
-			indexValue = pow(indexValue, (double) 2);
-			colRunningCount = colRunningCount + indexValue;
-
-			delete currentIndex;
-		}
-
-		/* NOTE: Uses MATLAB's formula for standard deviation */
-		colRunningCount = (((double)(colRunningCount)) / ((double) (data.numRows() - 1)));
-		Data_STD[colMeanIndex] = (sqrt(colRunningCount));
-
-		delete colMeanIndex;
-	}
+	Matrix &Data_STD = *(data.StdDev());
 
 	/* Normalize the array */
 	for (c_idx = 0; c_idx < data.numCols(); c_idx++)

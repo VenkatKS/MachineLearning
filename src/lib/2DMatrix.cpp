@@ -218,6 +218,86 @@ void Matrix::operateOnMatrixValues(double scalar, ScalarOps opType)
 	}
 }
 
+void Matrix::operateOnMatrixValues(double scalar, BooleanOps opType)
+{
+	int idx = 0;
+
+	for (idx = 0; idx < (this->rDim * this->cDim); idx++)
+	{
+		double this_element = this->matrix[idx];
+		bool result = 0;
+
+		switch (opType)
+		{
+			case BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_EQUAL_TO_SCALAR:
+				result = (this_element == scalar);
+				break;
+			case BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_NOT_EQUAL_TO_SCALAR:
+				result = (this_element != scalar);
+				break;
+			case BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_GEQ_SCALAR:
+				result = (this_element >= scalar);
+				break;
+			case BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_LEQ_SCALAR:
+				result = (this_element <= scalar);
+				break;
+			case BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_GT_SCALAR:
+				result = (this_element > scalar);
+				break;
+			case BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_LT_SCALAR:
+				result = (this_element < scalar);
+				break;
+			default:
+				assert (0);
+				break;
+		}
+
+		this->matrix[idx] = (double) result;
+	}
+}
+
+void Matrix::operateOnMatrixValues(Matrix *otherMatrix, BooleanOps opType)
+{
+	int idx = 0;
+
+	if (this->numCols() != otherMatrix->numCols() || this->numRows() != otherMatrix->numRows())
+		return;
+
+	for (idx = 0; idx < (this->rDim * this->cDim); idx++)
+	{
+		double this_element = this->matrix[idx];
+		double that_element = otherMatrix->matrix[idx];
+		bool result = 0;
+
+		switch (opType)
+		{
+			case BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_EQUAL_TO_SCALAR:
+				result = (this_element == that_element);
+				break;
+			case BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_NOT_EQUAL_TO_SCALAR:
+				result = (this_element != that_element);
+				break;
+			case BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_GEQ_SCALAR:
+				result = (this_element >= that_element);
+				break;
+			case BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_LEQ_SCALAR:
+				result = (this_element <= that_element);
+				break;
+			case BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_GT_SCALAR:
+				result = (this_element > that_element);
+				break;
+			case BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_LT_SCALAR:
+				result = (this_element < that_element);
+				break;
+			default:
+				assert (0);
+				break;
+		}
+
+		this->matrix[idx] = (double) result;
+	}
+}
+
 void Matrix::Log_e()
 {
 	int idx = 0;
@@ -389,6 +469,67 @@ void Matrix::Transpose()
 	this->rDim = temp;
 	delete this->matrix;
 	this->matrix = new_matrix;
+}
+
+Matrix *Matrix::Mean()
+{
+	int c_idx, r_idx = 0;
+	Matrix &data = (*this);
+	Matrix &Data_Mean = *(new Matrix(1, data.numCols()));
+
+	for (c_idx = 0; c_idx < data.numCols(); c_idx++)
+	{
+		double colRunningCount = 0;
+
+		for (r_idx = 0; r_idx < data.numRows(); r_idx++)
+		{
+			Indexer *currentIndex = new Indexer(r_idx, c_idx);
+			colRunningCount = colRunningCount + data[currentIndex];
+			delete currentIndex;
+		}
+
+		Indexer *currentMean = new Indexer(0, c_idx);
+		Data_Mean[currentMean] = (((double)(colRunningCount)) / ((double) data.numRows()));
+		delete currentMean;
+	}
+	return &Data_Mean;
+}
+
+Matrix *Matrix::StdDev()
+{
+	int c_idx, r_idx = 0;
+	Matrix &data = (*this);
+	Matrix &Data_Mean = (*this->Mean());
+	Matrix &Data_STD = *(new Matrix(1, data.numCols()));
+
+	for (c_idx = 0; c_idx < data.numCols(); c_idx++)
+	{
+		Indexer *colMeanIndex = new Indexer(0, c_idx);
+		double colRunningCount = 0;
+		double colMean = Data_Mean[colMeanIndex];
+
+		for (r_idx = 0; r_idx < data.numRows(); r_idx++)
+		{
+			Indexer *currentIndex = new Indexer(r_idx, c_idx);
+
+			double indexValue = data[currentIndex];
+			indexValue = indexValue - colMean;
+			indexValue = fabs(indexValue);
+			indexValue = pow(indexValue, (double) 2);
+			colRunningCount = colRunningCount + indexValue;
+
+			delete currentIndex;
+		}
+
+		/* NOTE: Uses MATLAB's formula for standard deviation */
+		colRunningCount = (((double)(colRunningCount)) / ((double) (data.numRows() - 1)));
+		Data_STD[colMeanIndex] = (sqrt(colRunningCount));
+
+		delete colMeanIndex;
+	}
+
+	delete &Data_Mean;
+	return &Data_STD;
 }
 
 Matrix::~Matrix()

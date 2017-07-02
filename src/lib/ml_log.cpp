@@ -178,3 +178,14 @@ Matrix *ML_LogOps::GradientDescent(Matrix &training_X, Matrix &training_y, Matri
 	delete X;
 	return result;
 }
+
+Matrix *ML_LogOps::Predict(Matrix &input_examples, Matrix &theta, double threshold)
+{
+	input_examples.AddBiasCol();
+	Matrix *interim_hypothesis = input_examples * theta;
+	Matrix *predictions = sigmoid(*(interim_hypothesis));
+	predictions->operateOnMatrixValues(threshold, BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_GEQ_SCALAR);
+
+	delete interim_hypothesis;
+	return predictions;
+}

@@ -31,6 +31,7 @@ public:
 	static double computeCost(Matrix &training_X, Matrix &training_y, Matrix &training_theta);
 	static Matrix *gradientCalculate(Matrix &training_X, Matrix &training_y, Matrix &theta);
 	static Matrix *GradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, double alpha, int num_iterations);
+	static Matrix *Predict(Matrix &input_examples, Matrix &theta, double threshold);
 };
 
 #endif /* ml_log_hpp */

@@ -54,6 +54,27 @@ enum ScalarOps
 	OP_INVERT_EVERY_MATRIX_ELEMENT_AND_MULTIPLY_SCALAR
 };
 
+enum BooleanOps
+{
+	/* Matrix[i, j] = Matrix[i, j] == scalar; */
+	BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_EQUAL_TO_SCALAR,
+
+	/* Matrix[i, j] = Matrix[i, j] != scalar */
+	BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_NOT_EQUAL_TO_SCALAR,
+
+	/* Matrix[i, j] = Matrix[i, j] >= scalar */
+	BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_GEQ_SCALAR,
+
+	/* Matrix[i, j] = Matrix[i, j] <= scalar */
+	BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_LEQ_SCALAR,
+
+	/* Matrix[i, j] = Matrix[i, j] > scalar */
+	BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_GT_SCALAR,
+
+	/* Matrix[i, j] = Matrix[i, j] < scalar */
+	BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_LT_SCALAR
+};
+
 class Matrix
 {
 private:
@@ -83,8 +104,15 @@ public:
 	void AddBiasRow();
 	void AddBiasCol();
 	void operateOnMatrixValues(double scalar, ScalarOps opType);
+	void operateOnMatrixValues(double scalar, BooleanOps opType);
+	void operateOnMatrixValues(Matrix *otherMatrix, BooleanOps opType);
 	void Transpose();
 	void Log_e();
+
+	/* Matrix Properties */
+	Matrix *Mean();
+	Matrix *StdDev();
+	
 
 	/* Operators */
 	double &operator[] (Indexer *operand);
