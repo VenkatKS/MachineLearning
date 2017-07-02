@@ -10,9 +10,9 @@
 #include <stdio.h>
 #include <cassert>
 #include <math.h>
-#include "../lib/include/2DMatrix.hpp"
-#include "../lib/include/ml_linear.hpp"
-#include "../lib/include/ml_log.hpp"
+#include "lib/include/2DMatrix.hpp"
+#include "lib/include/ml_linear.hpp"
+#include "lib/include/ml_log.hpp"
 
 /*
  *	PLEASE NOTE:
@@ -67,7 +67,10 @@ int main(int argc, const char * argv[]) {
 	printf("1b) Second Cost Function Test: Passed\n");
 
 	/* Should be about X0 = -3.6303, X1 = 1.1664 */
-	theta_0 = ML_LinearOps::gradientDescent(*X, *y, *theta_0, 0.0100, 1500);
+	Matrix *theta_0_temp;
+	theta_0_temp = ML_LinearOps::gradientDescent(*X, *y, *theta_0, 0.0100, 1500);
+	delete theta_0;
+	theta_0 = theta_0_temp;
 
 	/* Ensure it's a 2x1 Matrix with proper values */
 	assert (theta_0->numRows() == 2);
@@ -94,7 +97,10 @@ int main(int argc, const char * argv[]) {
 	(*theta_1)[1] = 0.3242345345234562345634253423452345;
 	(*theta_1)[2] = 9085981324123412341;
 
-	X = ML_DataOps::NormalizeData(*X);
+	Matrix *temp_X;
+	temp_X = ML_DataOps::NormalizeData(*X);
+	delete X;
+	X = temp_X;
 
 	result_0 = ML_LinearOps::computeCost(*X, *y, *theta_0);
 
@@ -108,7 +114,9 @@ int main(int argc, const char * argv[]) {
 	printf("2b) Second Cost Function Test: Passed\n");
 
 
-	theta_0 = ML_LinearOps::gradientDescent(*X, *y, *theta_0, 0.0100, 400);
+	theta_0_temp = ML_LinearOps::gradientDescent(*X, *y, *theta_0, 0.0100, 400);
+	delete theta_0;
+	theta_0 = theta_0_temp;
 
 	assert (theta_0->numRows() == 3);
 	assert (theta_1->numCols() == 1);
@@ -134,6 +142,7 @@ int main(int argc, const char * argv[]) {
 	for (idx = 0; idx < (sigmoid_result->numCols() * sigmoid_result->numRows()); idx++)
 		assert ((*sigmoid_result)[idx] == 0.5);
 	printf("3a) First Sigmoid Function Test: Passed\n");
+	delete sigmoid_result;
 
 	result_0 = ML_LogOps::computeCost(*X, *y, *theta_0);
 
@@ -152,7 +161,10 @@ int main(int argc, const char * argv[]) {
 	delete theta_0;
 
 	theta_0 = new Matrix(3, 1);
-	theta_0 = ML_LogOps::gradientCalculate(*X, *y, *theta_0);
+	theta_0_temp = ML_LogOps::gradientCalculate(*X, *y, *theta_0);
+	delete theta_0;
+	theta_0 = theta_0_temp;
+
 	assert(ROUGHLY_EQUAL((*theta_0)[0],  (double) -0.100000000000000));
 	assert(ROUGHLY_EQUAL((*theta_0)[1],  (double) -12.009216589291150));
 	assert(ROUGHLY_EQUAL((*theta_0)[2],  (double) -11.262842205513591));
@@ -163,7 +175,9 @@ int main(int argc, const char * argv[]) {
 
 #if STRESS_TEST
 	printf("Stress Test Enabled. This will take a while.....\n");
-	theta_0 = ML_LogOps::GradientDescent(*X, *y, *theta_0, 0.001, 3000000);
+	theta_0_temp = ML_LogOps::GradientDescent(*X, *y, *theta_0, 0.001, 3000000);
+	delete theta_0;
+	theta_0 = theta_0_temp;
 	result_1 = ML_LogOps::computeCost(*X, *y, *theta_0);
 
 	assert (theta_0->numRows() == 3);
@@ -175,7 +189,9 @@ int main(int argc, const char * argv[]) {
 	printf("3d) Stress Log Gradient Descent Test: Passed.\n");
 
 #else
-	theta_0 = ML_LogOps::GradientDescent(*X, *y, *theta_0, 0.001, 10000);
+	theta_0_temp = ML_LogOps::GradientDescent(*X, *y, *theta_0, 0.001, 10000);
+	delete theta_0;
+	theta_0 = theta_0_temp;
 	result_1 = ML_LogOps::computeCost(*X, *y, *theta_0);
 
 	assert (theta_0->numRows() == 3);
@@ -186,7 +202,11 @@ int main(int argc, const char * argv[]) {
 	assert (ROUGHLY_EQUAL(result_1, 0.585027498817674));
 	printf("3d) Non-Stress Log Gradient Descent Test: Passed.\n");
 #endif
-	
+	delete X;
+	delete y;
+	delete theta_0;
+	delete theta_1;
+
 	printf("\n\nDONE: All Pass within a deviation less than %e %% from MatLab's results.\n", EPSILON);
 	return 0;
 }

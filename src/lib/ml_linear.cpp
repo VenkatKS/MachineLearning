@@ -124,6 +124,7 @@ Matrix *ML_DataOps::NormalizeData(Matrix &data)
 
 		Indexer *currentMean = new Indexer(0, c_idx);
 		Data_Mean[currentMean] = (((double)(colRunningCount)) / ((double) data.numRows()));
+		delete currentMean;
 	}
 
 	/* Calculate the std. dev. of each column (i.e. each feature) */
@@ -171,8 +172,11 @@ Matrix *ML_DataOps::NormalizeData(Matrix &data)
 			Data_Normalized[currentIndex] = indexValue;
 			delete currentIndex;
 		}
+		delete colMeanIndex;
 	}
 	
+	delete &Data_Mean;
+	delete &Data_STD;
 
 	return &Data_Normalized;
 }

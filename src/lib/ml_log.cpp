@@ -37,7 +37,8 @@ double ML_LogOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix &tr
 	Matrix &X = *(new Matrix(training_X));
 	X.AddBiasCol();
 
-	Matrix *hypothesis = sigmoid(*(X * training_theta));
+	Matrix *interim_hypothesis = (X * training_theta);
+	Matrix *hypothesis = sigmoid(*interim_hypothesis);
 
 	Matrix &scale = *(new Matrix(training_y));
 	scale.operateOnMatrixValues(-1, OP_MULTIPLY_SCALAR_WITH_EVERY_MATRIX_ELEMENT);
@@ -73,6 +74,7 @@ double ML_LogOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix &tr
 		}
 		Indexer *currentMean = new Indexer(0, c_idx);
 		sum_result[currentMean] = runningColCount;
+		delete currentMean;
 	}
 
 	sum_result.operateOnMatrixValues((double) ((double)1.0 / (double) numTrainingExamples), OP_MULTIPLY_SCALAR_WITH_EVERY_MATRIX_ELEMENT);
@@ -81,7 +83,20 @@ double ML_LogOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix &tr
 
 	/* FIXME: Add Regularization Expression */
 
-	return sum_result[0];
+	delete &X;
+	delete &hypothesis2;
+	delete hypothesis;
+	delete interim_hypothesis;
+	delete &scale_2;
+	delete &scale;
+	delete result_1;
+	delete result_2;
+	delete &result;
+
+	double final_cost = sum_result[0];
+	delete &sum_result;
+
+	return final_cost;
 }
 
 Matrix *ML_LogOps::gradientCalculate(Matrix &training_X, Matrix &training_y, Matrix &theta)
@@ -92,12 +107,15 @@ Matrix *ML_LogOps::gradientCalculate(Matrix &training_X, Matrix &training_y, Mat
 	X.AddBiasCol();
 	int c_idx, r_idx = 0;
 	double constant = ((double) 1.0) / ((double) numTrainingSet);
-	Matrix *hypothesis = sigmoid(*(X * theta));
+
+	Matrix *interim_hypothesis = (X * theta);
+	Matrix *hypothesis = sigmoid(*interim_hypothesis);
 	Matrix *TermOne = (*hypothesis) - training_y;
 	Matrix *TermTwo = new Matrix(X.numRows(), X.numCols());
 	Matrix *gradient = new Matrix(1, theta.numRows());
 
 	delete hypothesis;
+	delete interim_hypothesis;
 
 	assert(TermOne->numCols() == 1);
 	for (r_idx = 0; r_idx < X.numRows(); r_idx++)
@@ -121,17 +139,24 @@ Matrix *ML_LogOps::gradientCalculate(Matrix &training_X, Matrix &training_y, Mat
 		}
 		Indexer *currentMean = new Indexer(0, c_idx);
 		(*gradient)[currentMean] = runningColCount;
+		delete currentMean;
 	}
 
 	gradient->operateOnMatrixValues(constant, OP_MULTIPLY_SCALAR_WITH_EVERY_MATRIX_ELEMENT);
 
 	gradient->Transpose();
 
+	delete TermOne;
+	delete TermTwo;
+	delete &X;
+
 	return gradient;
 }
 
 Matrix *ML_LogOps::GradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, double alpha, int num_iterations)
 {
+	/* myTheta = myTheta - ((alpha/m) * X' * (sigmoid(X * myTheta) - y)); */
+
 	int iteration_idx = 0;
 	Matrix *result = new Matrix(theta);
 	Matrix *X = new Matrix(training_X);
@@ -142,7 +167,12 @@ Matrix *ML_LogOps::GradientDescent(Matrix &training_X, Matrix &training_y, Matri
 		Matrix *nextGradient = ML_LogOps::gradientCalculate(training_X, training_y, *result);
 		nextGradient->operateOnMatrixValues(alpha, OP_MULTIPLY_SCALAR_WITH_EVERY_MATRIX_ELEMENT);
 
-		result = (*result) - (*nextGradient);
+		Matrix *temp_result;
+		temp_result = (*result) - (*nextGradient);
+
+		delete nextGradient;
+		delete result;
+		result = temp_result;
 	}
 
 	delete X;
