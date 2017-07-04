@@ -10,9 +10,9 @@
 #include <stdio.h>
 #include <cassert>
 #include <math.h>
-#include "lib/include/2DMatrix.hpp"
-#include "lib/include/ml_linear.hpp"
-#include "lib/include/ml_log.hpp"
+#include "../lib/include/2DMatrix.hpp"
+#include "../lib/include/ml_linear.hpp"
+#include "../lib/include/ml_log.hpp"
 
 /*
  *	PLEASE NOTE:
