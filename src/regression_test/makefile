@@ -20,11 +20,12 @@ TARGET=$(FIKSENGINE_LIBDIR)/testme.o
 all: $(TARGET)
 
 clean:
-	rm -f  $(TARGET)
+	rm -f $(TARGET)
 	rm -r -f $(FIKSENGINE_LIBDIR)
 	(cd $(LIB_TOP); make clean)
 
 $(TARGET) : $(OBJECTS)
+	make clean
 	(cd $(LIB_TOP); make clean)
 	(cd $(LIB_TOP); make all)
 	mkdir $(FIKSENGINE_LIBDIR)
