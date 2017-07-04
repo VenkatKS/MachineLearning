@@ -101,6 +101,22 @@ Matrix *Matrix::operator*(const Matrix &operand)
 	return resultant;
 }
 
+Matrix *Matrix::operator+(const Matrix &operand)
+{
+	if (this->rDim != operand.rDim || this->cDim != operand.cDim)
+		return NULL;
+
+	int idx = 0;
+	Matrix *resultant = new Matrix(this->rDim, this->cDim);
+
+	for (idx = 0; idx < (this->rDim * this->cDim); idx++)
+	{
+		resultant->matrix[idx] = this->matrix[idx] + operand.matrix[idx];
+	}
+
+	return resultant;
+}
+
 Matrix *Matrix::operator-(const Matrix &operand)
 {
 	if (this->rDim != operand.rDim || this->cDim != operand.cDim)
@@ -530,6 +546,29 @@ Matrix *Matrix::StdDev()
 
 	delete &Data_Mean;
 	return &Data_STD;
+}
+
+Matrix *Matrix::Sum()
+{
+	int c_idx, r_idx = 0;
+	Matrix &data = (*this);
+	Matrix &Data_Sum = (*new Matrix(1, data.numCols()));
+
+	for (c_idx = 0; c_idx < data.numCols(); c_idx++)
+	{
+		double runningColCount = 0;
+		for (r_idx = 0; r_idx < data.numRows(); r_idx++)
+		{
+			Indexer *currentIndex = new Indexer(r_idx, c_idx);
+			runningColCount = runningColCount + data[currentIndex];
+			delete currentIndex;
+		}
+		Indexer *currentMean = new Indexer(0, c_idx);
+		Data_Sum[currentMean] = runningColCount;
+		delete currentMean;
+	}
+
+	return &Data_Sum;
 }
 
 Matrix::~Matrix()

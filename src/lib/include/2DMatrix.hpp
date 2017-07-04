@@ -109,16 +109,19 @@ public:
 	void Transpose();
 	void Log_e();
 
-	/* Matrix Properties */
+	/* Returns a row-vector with the mean of every column, similar to MatLab's mean() command */
 	Matrix *Mean();
+	/* Returns a row-vector with the standard deviation of every column, similar to MatLab's std() command */
 	Matrix *StdDev();
-	
+	/* Returns a row-vector with the sum of every column, similar to MatLab's sum() command */
+	Matrix *Sum();
 
 	/* Operators */
 	double &operator[] (Indexer *operand);
 	const double &operator[] (const Indexer *operand) const;
 	double &operator[] (int index);
 	Matrix *operator* (const Matrix &operand);
+	Matrix *operator+ (const Matrix &operand);
 	Matrix *operator- (const Matrix &operand);
 	Matrix *operator^ (const Matrix &operand);
 

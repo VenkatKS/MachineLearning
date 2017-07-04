@@ -231,6 +231,30 @@ int main(int argc, const char * argv[]) {
 	delete theta_0;
 	delete theta_1;
 
+	/* Testing Multi-Class, Multi-Feature Classification */
+	printf("\n\n4) Testing Multi-Class, Multi-Feature Log Regression and Classification...\n");
+
+	X = Matrix::LoadMatrix("data/classification/multi-class classification/X_data.txt");
+	y = Matrix::LoadMatrix("data/classification/multi-class classification/Y_data.txt");
+
+	/* theta_t = [-2; -1; 1; 2]; */
+	theta_0 = new Matrix(4, 1);
+	(*theta_0)[0] = -2;
+	(*theta_0)[1] = -1;
+	(*theta_0)[2] = 1;
+	(*theta_0)[3] = 2;
+	result_1 = ML_LogOps::computeCost(*X, *y, *theta_0, 3);
+	assert (ROUGHLY_EQUAL(result_1, 2.534819396109744));
+	printf("4a) Regularized Log Cost Test: Passed\n");
+
+	Matrix *regularized_gradients = ML_LogOps::gradientCalculate(*X, *y, *theta_0, 3);
+	assert (ROUGHLY_EQUAL((*regularized_gradients)[0], 0.146561367924898));
+	assert (ROUGHLY_EQUAL((*regularized_gradients)[1], -0.548558411853160));
+	assert (ROUGHLY_EQUAL((*regularized_gradients)[2], 0.724722272109289));
+	assert (ROUGHLY_EQUAL((*regularized_gradients)[3], 1.398002956071738));
+	delete regularized_gradients;
+	printf("4a) Regularized Log Gradients Test: Passed\n");
+
 	printf("\n\nDONE: All Pass within a deviation less than %e %% from MatLab's results.\n", EPSILON);
 	return 0;
 }
