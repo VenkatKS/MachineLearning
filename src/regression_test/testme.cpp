@@ -10,9 +10,9 @@
 #include <stdio.h>
 #include <cassert>
 #include <math.h>
-#include "../lib/include/2DMatrix.hpp"
-#include "../lib/include/ml_linear.hpp"
-#include "../lib/include/ml_log.hpp"
+#include "lib/include/2DMatrix.hpp"
+#include "lib/include/ml_linear.hpp"
+#include "lib/include/ml_log.hpp"
 
 /*
  *	PLEASE NOTE:
@@ -42,8 +42,8 @@ int main(int argc, const char * argv[]) {
 	printf("MLLib Regression Testing: \n\n\n");
 
 	/* Single-Feature Regression */
-	Matrix *X = Matrix::LoadMatrix("data/regression/X1_data.txt");
-	Matrix *y = Matrix::LoadMatrix("data/regression/y1_data.txt");
+	Matrix *X = Matrix::LoadMatrix("data/regression/X1_data.txt", ',');
+	Matrix *y = Matrix::LoadMatrix("data/regression/y1_data.txt", ',');
 	Matrix *theta_0 = new Matrix::Matrix(2, 1);
 	Matrix *theta_1 = new Matrix::Matrix(2, 1);
 
@@ -87,8 +87,8 @@ int main(int argc, const char * argv[]) {
 	printf("\n\n2) Testing Multi-Feature Linear Regression......\n");
 
 	/* Multi-Feature Regression */
-	X = Matrix::LoadMatrix("data/regression/X2_data.txt");
-	y = Matrix::LoadMatrix("data/regression/y2_data.txt");
+	X = Matrix::LoadMatrix("data/regression/X2_data.txt", ',');
+	y = Matrix::LoadMatrix("data/regression/y2_data.txt", ',');
 	theta_0 = new Matrix::Matrix(3, 1);
 	theta_1 = new Matrix::Matrix(3, 1);
 
@@ -132,8 +132,8 @@ int main(int argc, const char * argv[]) {
 	printf("\n\n3) Testing Multi-Feature Log Regression and Classification......\n");
 
 	/* Single-Feature Classification */
-	X = Matrix::LoadMatrix("data/classification/X1_data_log_1.txt");
-	y = Matrix::LoadMatrix("data/classification/y1_data_log_1.txt");
+	X = Matrix::LoadMatrix("data/classification/X1_data_log_1.txt", ',');
+	y = Matrix::LoadMatrix("data/classification/y1_data_log_1.txt", ',');
 	theta_0 = new Matrix::Matrix(3, 1);
 	theta_1 = new Matrix::Matrix(3, 1);
 
@@ -234,8 +234,8 @@ int main(int argc, const char * argv[]) {
 	/* Testing Multi-Class, Multi-Feature Classification */
 	printf("\n\n4) Testing Multi-Class, Multi-Feature Log Regression and Classification...\n");
 
-	X = Matrix::LoadMatrix("data/classification/multi-class classification/X_data.txt");
-	y = Matrix::LoadMatrix("data/classification/multi-class classification/Y_data.txt");
+	X = Matrix::LoadMatrix("data/classification/multi-class classification/X_data.txt", ',');
+	y = Matrix::LoadMatrix("data/classification/multi-class classification/Y_data.txt", ',');
 
 	/* theta_t = [-2; -1; 1; 2]; */
 	theta_0 = new Matrix(4, 1);
@@ -254,6 +254,22 @@ int main(int argc, const char * argv[]) {
 	assert (ROUGHLY_EQUAL((*regularized_gradients)[3], 1.398002956071738));
 	delete regularized_gradients;
 	printf("4a) Regularized Log Gradients Test: Passed\n");
+	delete X;
+	delete y;
+	delete theta_0;
+
+	X = Matrix::LoadMatrix("data/classification/multi-class classification/XPic_Data.txt", ',');
+	y = Matrix::LoadMatrix("data/classification/multi-class classification/YPic_Data.txt", ',');
+
+	/*
+	FIXME: Enable these tests after vectorizing the loops
+	Matrix *all_theta = ML_LogOps::OneVsAll(*X, *y, 10, 0.01, 10, 0.1);
+	temp_y = ML_LogOps::PredictOneVsAll(*X, *all_theta);
+	temp_y->Transpose();
+	temp_y->operateOnMatrixValues(y, BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_EQUAL_TO_SCALAR);
+	result = temp_y->Mean();
+	*/
+
 
 	printf("\n\nDONE: All Pass within a deviation less than %e %% from MatLab's results.\n", EPSILON);
 	return 0;

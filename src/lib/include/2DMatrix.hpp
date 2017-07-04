@@ -115,6 +115,7 @@ public:
 	Matrix *StdDev();
 	/* Returns a row-vector with the sum of every column, similar to MatLab's sum() command */
 	Matrix *Sum();
+	Matrix *MaxRowNumber();
 
 	/* Operators */
 	double &operator[] (Indexer *operand);
@@ -129,7 +130,7 @@ public:
 	static void printMatrix(Matrix *matrixToPrint);
 	static Matrix *MakeIdentityMatrix(int dims);
 	static Matrix *MakeZeroMatrix(int dims);
-	static Matrix *LoadMatrix(std::string fileName);
+	static Matrix *LoadMatrix(std::string fileName, char col_delimiter);
 
 };
 

@@ -29,7 +29,11 @@ public:
 	/* Regularized Operations */
 	static double computeCost(Matrix &training_X, Matrix &training_y, Matrix &training_theta, double regularizationParam);
 	static Matrix *gradientCalculate(Matrix &training_X, Matrix &training_y, Matrix &theta, double regularizationParam);
-	Matrix *GradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, double alpha, int num_iterations, double regularizationParam);
+	static Matrix *GradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, double alpha, int num_iterations, double regularizationParam);
+
+	/* Multi-Class Classification */
+	static Matrix *OneVsAll(Matrix &training_X, Matrix &training_y, int num_classes, double alpha, int num_iterations, double regularizationParam);
+	static Matrix *PredictOneVsAll(Matrix &training_X, Matrix &all_theta);
 
 
 };

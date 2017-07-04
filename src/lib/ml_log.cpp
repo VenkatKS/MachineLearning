@@ -273,3 +273,53 @@ Matrix *ML_LogOps::GradientDescent(Matrix &training_X, Matrix &training_y, Matri
 	delete X;
 	return result;
 }
+
+/* Class IDs are in order */
+Matrix *ML_LogOps::OneVsAll(Matrix &training_X, Matrix &training_y, int num_classes, double alpha, int num_iterations, double regularizationParam)
+{
+	int class_idx = 0;
+	int feature_idx = 0;
+	Matrix **all_theta = new Matrix*[num_classes];
+
+	/* 
+	 * Return matrix has the same number of cols as number of classes to represent the optimal theta for each class to fit
+	 * the given data, and the same number of columns as the training set + 1 since we have the same number of features as
+	 * the original data set plus 1 for the bias feature.
+	 */
+	Matrix &return_matrix = (*new Matrix(training_X.numCols() + 1, num_classes));
+
+	for (class_idx = 0; class_idx < num_classes; class_idx++)
+	{
+		Matrix *temp_y = new Matrix(training_y);
+		Matrix *currentTheta = new Matrix(training_X.numCols() + 1, 1);
+		temp_y->operateOnMatrixValues(class_idx, BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_EQUAL_TO_SCALAR);
+		Matrix *theta_idx = ML_LogOps::GradientDescent(training_X, *temp_y, *currentTheta, alpha, num_iterations, regularizationParam);
+		all_theta[class_idx] = theta_idx;
+		delete temp_y;
+		delete currentTheta;
+	}
+
+	for (class_idx = 0; class_idx < num_classes; class_idx++)
+	{
+		for (feature_idx = 0; feature_idx < (training_X.numCols() + 1); feature_idx++)
+		{
+			Indexer *currentFeatureForCurrentTheta = new Indexer(feature_idx, class_idx);
+			return_matrix[currentFeatureForCurrentTheta] = (*all_theta[class_idx])[feature_idx];
+			delete currentFeatureForCurrentTheta;
+		}
+	}
+
+	return &return_matrix;
+}
+
+Matrix *ML_LogOps::PredictOneVsAll(Matrix &training_X, Matrix &all_theta)
+{
+	Matrix &X = (*new Matrix(training_X));
+	X.AddBiasCol();
+	Matrix *hypothesis = X * all_theta;
+	Matrix *predict = sigmoid(*hypothesis);
+	predict->Transpose();
+	Matrix *end = predict->MaxRowNumber();
+	return end;
+	
+}

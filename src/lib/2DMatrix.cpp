@@ -370,7 +370,7 @@ void Matrix::printMatrix(Matrix *matrixToPrint)
 	}
 }
 
-Matrix *Matrix::LoadMatrix(std::string fileName)
+Matrix *Matrix::LoadMatrix(std::string fileName, char col_delimiter)
 {
 	std::ifstream infile(fileName);
 
@@ -389,11 +389,11 @@ Matrix *Matrix::LoadMatrix(std::string fileName)
 		std::vector<double> lineTokens = {};
 
 		{
-			std::getline(iss, token, ',');
+			std::getline(iss, token, col_delimiter);
 			double value = std::atof(token.c_str());
 			lineTokens.push_back(value);
 
-			while (std::getline(iss, token, ','))
+			while (std::getline(iss, token, col_delimiter))
 			{
 				value = std::atof(token.c_str());
 				lineTokens.push_back(value);
@@ -566,6 +566,34 @@ Matrix *Matrix::Sum()
 		Indexer *currentMean = new Indexer(0, c_idx);
 		Data_Sum[currentMean] = runningColCount;
 		delete currentMean;
+	}
+
+	return &Data_Sum;
+}
+
+Matrix *Matrix::MaxRowNumber()
+{
+	int c_idx, r_idx = 0;
+	Matrix &data = (*this);
+	Matrix &Data_Sum = (*new Matrix(1, data.numCols()));
+
+	for (c_idx = 0; c_idx < data.numCols(); c_idx++)
+	{
+		double currentMax = -__DBL_MAX__;
+		int cur_ridx = 0;
+		for (r_idx = 0; r_idx < data.numRows(); r_idx++)
+		{
+			Indexer *currentIndex = new Indexer(r_idx, c_idx);
+			if (data[currentIndex] > currentMax)
+			{
+				currentMax = data[currentIndex];
+				cur_ridx = r_idx;
+			}
+			delete currentIndex;
+		}
+		Indexer *currentCol = new Indexer(0, c_idx);
+		Data_Sum[currentCol] = cur_ridx;
+		delete currentCol;
 	}
 
 	return &Data_Sum;
