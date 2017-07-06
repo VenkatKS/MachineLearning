@@ -19,12 +19,12 @@ public:
 	bool debug_print = false;
 
 	/* Compute the cost of the provided parameters for the provided data set */
-	static double computeCost(Matrix &training_X, Matrix &training_y, Matrix &training_theta);
-	static Matrix *gradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, double alpha, int num_iterations);
+	static float computeCost(Matrix &training_X, Matrix &training_y, Matrix &training_theta);
+	static Matrix *gradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, float alpha, int num_iterations);
 	static Matrix *Predict(Matrix &predict_X, Matrix &theta);
 
 	/* FIXME: Implement normal equation */
-	static Matrix *normalEquation(Matrix &training_X, Matrix &training_y, Matrix &theta, double alpha, int num_iterations);
+	static Matrix *normalEquation(Matrix &training_X, Matrix &training_y, Matrix &theta, float alpha, int num_iterations);
 };
 
 

@@ -1,7 +1,7 @@
 .PHONY : clean
 
 CPPFLAGS= -c -std=c++11
-
+LIBS=-framework OpenCL
 SOURCES = $(shell echo *.cpp)
 HEADERS = $(shell echo *.hpp)
 OBJECTS=$(SOURCES:.cpp=.o)
@@ -21,5 +21,5 @@ clean:
 $(TARGET) : $(OBJECTS)
 	mkdir $(ML_LIBDIR)
 	# Make Machine Learning Library
-	g++ $(CPPFLAGS) $(OBJECTS)
+	gcc $(CPPFLAGS) $(OBJECTS)
 	ar rvs $(TARGET) *.o

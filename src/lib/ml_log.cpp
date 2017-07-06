@@ -9,6 +9,8 @@
 #include <math.h>
 #include <cassert>
 #include <complex>
+#include <thread>
+
 #include "include/ml_log.hpp"
 
 #define DEBUGGING 0
@@ -19,7 +21,7 @@ Matrix *ML_LogOps::sigmoid(Matrix &z)
 	Matrix &Sigmoid_Matrix = *(new Matrix(z));
 	Sigmoid_Matrix.operateOnMatrixValues(-1.0, OP_MULTIPLY_SCALAR_WITH_EVERY_MATRIX_ELEMENT);
 
-	double exponent = exp((double) 1.0);
+	float exponent = exp((float) 1.0);
 	Sigmoid_Matrix.operateOnMatrixValues(exponent, OP_RAISE_SCALAR_TO_EVERY_MATRIX_ELEMENT_POWER);
 	Sigmoid_Matrix.operateOnMatrixValues(1, OP_ADD_SCALAR_TO_EVERY_MATRIX_ELEMENT);
 	Sigmoid_Matrix.operateOnMatrixValues(1.0, OP_INVERT_EVERY_MATRIX_ELEMENT_AND_MULTIPLY_SCALAR);
@@ -28,7 +30,7 @@ Matrix *ML_LogOps::sigmoid(Matrix &z)
 }
 
 /* Assumptions: Features in columns, examples in rows */
-double ML_LogOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix &training_theta)
+float ML_LogOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix &training_theta)
 {
 	/* cost = (1/m) * sum((-1 * y) .* log(hyp) - ((1-y) .* log(1 - hyp))); */
 
@@ -65,21 +67,22 @@ double ML_LogOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix &tr
 	Matrix &result = *((*result_1) - (*result_2));
 
 	Matrix &sum_result = *(new Matrix(1, result.numCols()));
+
+	float *A = result.getRaw();
+	float *res = sum_result.getRaw();
+	const int result_cols = result.numCols();
+#pragma clang loop vectorize(enable)
 	for (c_idx = 0; c_idx < result.numCols(); c_idx++)
 	{
-		double runningColCount = 0;
+		float runningColCount = 0;
 		for (r_idx = 0; r_idx < result.numRows(); r_idx++)
 		{
-			Indexer *currentIndex = new Indexer(r_idx, c_idx);
-			runningColCount = runningColCount + result[currentIndex];
-			delete currentIndex;
+			runningColCount = runningColCount + A[(r_idx * result_cols) + c_idx];
 		}
-		Indexer *currentMean = new Indexer(0, c_idx);
-		sum_result[currentMean] = runningColCount;
-		delete currentMean;
+		res[c_idx] = runningColCount;
 	}
 
-	sum_result.operateOnMatrixValues((double) ((double)1.0 / (double) numTrainingExamples), OP_MULTIPLY_SCALAR_WITH_EVERY_MATRIX_ELEMENT);
+	sum_result.operateOnMatrixValues((float) ((float)1.0 / (float) numTrainingExamples), OP_MULTIPLY_SCALAR_WITH_EVERY_MATRIX_ELEMENT);
 
 	assert(sum_result.numCols() == 1 && sum_result.numRows() == 1);
 
@@ -95,7 +98,7 @@ double ML_LogOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix &tr
 	delete result_2;
 	delete &result;
 
-	double final_cost = sum_result[0];
+	float final_cost = sum_result[0];
 	delete &sum_result;
 
 	return final_cost;
@@ -107,8 +110,7 @@ Matrix *ML_LogOps::gradientCalculate(Matrix &training_X, Matrix &training_y, Mat
 	int numTrainingSet = training_X.numRows();
 	Matrix &X = *(new Matrix(training_X));
 	X.AddBiasCol();
-	int c_idx, r_idx = 0;
-	double constant = ((double) 1.0) / ((double) numTrainingSet);
+	float constant = ((float) 1.0) / ((float) numTrainingSet);
 
 	Matrix *interim_hypothesis = (X * theta);
 	Matrix *hypothesis = sigmoid(*interim_hypothesis);
@@ -120,16 +122,9 @@ Matrix *ML_LogOps::gradientCalculate(Matrix &training_X, Matrix &training_y, Mat
 	delete interim_hypothesis;
 
 	assert(TermOne->numCols() == 1);
-	for (r_idx = 0; r_idx < X.numRows(); r_idx++)
-	{
-		for (c_idx = 0; c_idx < X.numCols(); c_idx++)
-		{
-			Indexer *currentIndex = new Indexer(r_idx, c_idx);
-			(*TermTwo)[currentIndex] = (*TermOne)[r_idx] * X[currentIndex];
-			delete currentIndex;
-		}
-	}
-
+	TermOne->Transpose();
+	TermTwo = (*TermOne) * X;
+	TermOne->Transpose();
 	gradient = TermTwo->Sum();
 	assert (gradient->numCols() == theta.numRows());
 
@@ -144,7 +139,7 @@ Matrix *ML_LogOps::gradientCalculate(Matrix &training_X, Matrix &training_y, Mat
 	return gradient;
 }
 
-Matrix *ML_LogOps::GradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, double alpha, int num_iterations)
+Matrix *ML_LogOps::GradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, float alpha, int num_iterations)
 {
 	/* myTheta = myTheta - ((alpha/m) * X' * (sigmoid(X * myTheta) - y)); */
 
@@ -153,14 +148,14 @@ Matrix *ML_LogOps::GradientDescent(Matrix &training_X, Matrix &training_y, Matri
 	Matrix *X = new Matrix(training_X);
 	X->AddBiasCol();
 #if DEBUGGING
-	double prevCost = 0;
+	float prevCost = 0;
 #endif
 
 	for (iteration_idx = 0; iteration_idx < num_iterations; iteration_idx++)
 	{
 		Matrix *nextGradient = ML_LogOps::gradientCalculate(training_X, training_y, *result);
 #if DEBUGGING
-		double currentCost = ML_LogOps::computeCost(training_X, training_y, theta);
+		float currentCost = ML_LogOps::computeCost(training_X, training_y, theta);
 		assert (!((iteration_idx > 0) && (prevCost < currentCost)));
 		prevCost = currentCost;
 #endif
@@ -178,7 +173,7 @@ Matrix *ML_LogOps::GradientDescent(Matrix &training_X, Matrix &training_y, Matri
 	return result;
 }
 
-Matrix *ML_LogOps::Predict(Matrix &input_examples, Matrix &theta, double threshold)
+Matrix *ML_LogOps::Predict(Matrix &input_examples, Matrix &theta, float threshold)
 {
 	input_examples.AddBiasCol();
 	Matrix *interim_hypothesis = input_examples * theta;
@@ -191,11 +186,11 @@ Matrix *ML_LogOps::Predict(Matrix &input_examples, Matrix &theta, double thresho
 
 
 /* Regularization Operations */
-double ML_LogOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix &training_theta, double regularizationParam)
+float ML_LogOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix &training_theta, float regularizationParam)
 {
-	double unregularizedCost = ML_LogOps::computeCost(training_X, training_y, training_theta);
+	float unregularizedCost = ML_LogOps::computeCost(training_X, training_y, training_theta);
 	int numTraining = training_X.numRows();
-	double regFactor = (double) ((double) regularizationParam) / ((double) (2 * numTraining));
+	float regFactor = (float) ((float) regularizationParam) / ((float) (2 * numTraining));
 	Matrix &temp_theta = (*new Matrix(training_theta));
 
 	/* Do not regularize the first parameter */
@@ -210,7 +205,7 @@ double ML_LogOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix &tr
 
 	assert (sum->numRows() == 1 && sum->numCols() == 1);
 
-	double regularizedSum = (*sum)[0];
+	float regularizedSum = (*sum)[0];
 
 	delete sum;
 	delete &temp_theta;
@@ -218,12 +213,12 @@ double ML_LogOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix &tr
 	return (unregularizedCost + regularizedSum);
 }
 
-Matrix *ML_LogOps::gradientCalculate(Matrix &training_X, Matrix &training_y, Matrix &theta, double regularizationParam)
+Matrix *ML_LogOps::gradientCalculate(Matrix &training_X, Matrix &training_y, Matrix &theta, float regularizationParam)
 {
 	Matrix &unregularizedGradients = (*ML_LogOps::gradientCalculate(training_X, training_y, theta));
 	Matrix &temp_theta = (*new Matrix(theta));
 	int numTraining = training_X.numRows();
-	double regFactor = (double) ((double) regularizationParam) / ((double) (numTraining));
+	float regFactor = (float) ((float) regularizationParam) / ((float) (numTraining));
 
 	/* Do not regularize the first parameter */
 	temp_theta[0] = 0;
@@ -239,7 +234,7 @@ Matrix *ML_LogOps::gradientCalculate(Matrix &training_X, Matrix &training_y, Mat
 	return regularizedGradients;
 }
 
-Matrix *ML_LogOps::GradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, double alpha, int num_iterations, double regularizationParam)
+Matrix *ML_LogOps::GradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, float alpha, int num_iterations, float regularizationParam)
 {
 	/* myTheta = myTheta - ((alpha/m) * X' * (sigmoid(X * myTheta) - y)); */
 
@@ -248,7 +243,7 @@ Matrix *ML_LogOps::GradientDescent(Matrix &training_X, Matrix &training_y, Matri
 	Matrix *X = new Matrix(training_X);
 	X->AddBiasCol();
 #if DEBUGGING
-	double prevCost = 0;
+	float prevCost = 0;
 #endif
 
 	for (iteration_idx = 0; iteration_idx < num_iterations; iteration_idx++)
@@ -256,7 +251,7 @@ Matrix *ML_LogOps::GradientDescent(Matrix &training_X, Matrix &training_y, Matri
 		Matrix *nextGradient = ML_LogOps::gradientCalculate(training_X, training_y, *result, regularizationParam);
 #if DEBUGGING
 		/* When debugging, verify that gradient descent is actually decreasing/not increasing the cost */
-		double currentCost = ML_LogOps::computeCost(training_X, training_y, theta, regularizationParam);
+		float currentCost = ML_LogOps::computeCost(training_X, training_y, theta, regularizationParam);
 		assert (!((iteration_idx > 0) && (prevCost < currentCost)));
 		prevCost = currentCost;
 #endif
@@ -281,7 +276,7 @@ Matrix *ML_LogOps::OneVsAll(Matrix &training_X, Matrix &training_y, int num_clas
 	int feature_idx = 0;
 	Matrix **all_theta = new Matrix*[num_classes];
 
-	/* 
+	/*
 	 * Return matrix has the same number of cols as number of classes to represent the optimal theta for each class to fit
 	 * the given data, and the same number of columns as the training set + 1 since we have the same number of features as
 	 * the original data set plus 1 for the bias feature.

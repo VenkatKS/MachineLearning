@@ -11,6 +11,7 @@
 #include <math.h>
 #include <cassert>
 #include "include/2DMatrix.hpp"
+#include "include/opencl_driver.hpp"
 
 bool set = false;
 Matrix::Matrix(int rDim, int cDim)
@@ -18,10 +19,10 @@ Matrix::Matrix(int rDim, int cDim)
 	this->rDim = rDim;
 	this->cDim = cDim;
 
-	this->matrix = new double[rDim * cDim];
+	this->matrix = new float[rDim * cDim];
 
 	/* Initialize new Matrix to all 0s */
-	memset(this->matrix, 0, sizeof(double) * (rDim * cDim));
+	memset(this->matrix, 0, sizeof(float) * (rDim * cDim));
 }
 
 Matrix::Matrix(Matrix &other)
@@ -29,13 +30,13 @@ Matrix::Matrix(Matrix &other)
 	this->cDim = other.cDim;
 	this->rDim = other.rDim;
 
-	this->matrix = new double[rDim * cDim];
+	this->matrix = new float[rDim * cDim];
 
 	/* Initialize new Matrix to all 0s */
-	memcpy(this->matrix, other.matrix, sizeof(double) * (rDim * cDim));
+	memcpy(this->matrix, other.matrix, sizeof(float) * (rDim * cDim));
 }
 
-Matrix::Matrix(int rDim, int cDim, double *raw_data)
+Matrix::Matrix(int rDim, int cDim, float *raw_data)
 {
 	this->cDim = cDim;
 	this->rDim = rDim;
@@ -43,7 +44,7 @@ Matrix::Matrix(int rDim, int cDim, double *raw_data)
 	this->matrix = raw_data;
 }
 
-double &Matrix::operator[](Indexer *operand)
+float &Matrix::operator[](Indexer *operand)
 {
 	if (operand->rowID >= this->numRows() || operand->colID >= this->numCols())
 		assert(0);
@@ -51,12 +52,12 @@ double &Matrix::operator[](Indexer *operand)
 	return (this->matrix[(operand->rowID * this->cDim) + operand->colID]);
 }
 
-double &Matrix::operator[](int index)
+float &Matrix::operator[](int index)
 {
 	return (this->matrix[index]);
 }
 
-const double &Matrix::operator[] (const Indexer *operand)
+const float &Matrix::operator[] (const Indexer *operand)
 const {
 	if (operand->rowID >= this->rDim || operand->colID >= this->cDim)
 		assert(0);
@@ -66,53 +67,61 @@ const {
 
 Matrix *Matrix::operator*(const Matrix &operand)
 {
-	/* Matrix crawling iterators */
-	int op1_r_idx = 0;
-	int op1_c_idx = 0;
+	Matrix *result_matrix = new Matrix(this->rDim, operand.cDim);
 
-	int op2_c_idx = 0;
-
-	/* Ensure that the dimensions are proper */
-	if (this->cDim != operand.rDim) return NULL;
-
-	Matrix *resultant = new Matrix(this->rDim, operand.cDim);
-
-	for (op1_r_idx = 0; op1_r_idx < this->rDim; op1_r_idx++)
+	size_t localWorkSize[3];
+	size_t globalWorkSize[3];
+	localWorkSize[0] = 16;
+	localWorkSize[1] = 16;
+	globalWorkSize[0] = this->rDim * localWorkSize[0];
+	globalWorkSize[1] = operand.cDim * localWorkSize[1];
+	ml_opencl_execution_state multiply_state =
 	{
-		for (op2_c_idx = 0; op2_c_idx < operand.cDim; op2_c_idx++)
-		{
-			double runningSum = 0;
-			for (op1_c_idx = 0; op1_c_idx < this->cDim; op1_c_idx++)
-			{
-				Indexer *op1 = new Indexer(op1_r_idx, op1_c_idx);
-				Indexer *op2 = new Indexer(op1_c_idx, op2_c_idx);
+		2,
+		this->matrix,
+		(this->rDim * this->cDim),
+		operand.matrix,
+		(operand.rDim * operand.cDim),
+		(this->cDim),
+		(operand.cDim),
+		(this->rDim),
+		result_matrix->matrix,
+		result_matrix->rDim * result_matrix->cDim,
+		NULL,
+		globalWorkSize,
+		2
+	};
 
-				runningSum += (*this)[op1] * operand[op2];
-
-				delete op1;
-				delete op2;
-			}
-			Indexer *opIdx = new Indexer(op1_r_idx, op2_c_idx);
-			(*resultant)[opIdx] = runningSum;
-			delete opIdx;
-		}
-	}
-
-	return resultant;
+	execute_kernel(multiply_state);
+	return result_matrix;
 }
 
 Matrix *Matrix::operator+(const Matrix &operand)
 {
 	if (this->rDim != operand.rDim || this->cDim != operand.cDim)
 		return NULL;
-
-	int idx = 0;
 	Matrix *resultant = new Matrix(this->rDim, this->cDim);
 
-	for (idx = 0; idx < (this->rDim * this->cDim); idx++)
+	size_t local = 512;
+	size_t global = (this->rDim * this->cDim) * local;
+	ml_opencl_execution_state sum_state =
 	{
-		resultant->matrix[idx] = this->matrix[idx] + operand.matrix[idx];
-	}
+		3,
+		this->matrix,
+		(this->rDim * this->cDim),
+		operand.matrix,
+		(operand.rDim * operand.cDim),
+		(this->rDim * this->cDim),
+		(operand.rDim * operand.cDim),
+		(this->rDim * this->cDim),
+		resultant->matrix,
+		resultant->rDim * resultant->cDim,
+		&local,
+		&global,
+		1
+	};
+
+	execute_kernel(sum_state);
 
 	return resultant;
 }
@@ -121,14 +130,29 @@ Matrix *Matrix::operator-(const Matrix &operand)
 {
 	if (this->rDim != operand.rDim || this->cDim != operand.cDim)
 		return NULL;
-
-	int idx = 0;
 	Matrix *resultant = new Matrix(this->rDim, this->cDim);
 
-	for (idx = 0; idx < (this->rDim * this->cDim); idx++)
+	size_t local = 512;
+	size_t global = (this->rDim * this->cDim) * local;
+
+	ml_opencl_execution_state minus_state =
 	{
-		resultant->matrix[idx] = this->matrix[idx] - operand.matrix[idx];
-	}
+		4,
+		this->matrix,
+		(this->rDim * this->cDim),
+		operand.matrix,
+		(operand.rDim * operand.cDim),
+		(this->rDim * this->cDim),
+		(operand.rDim * operand.cDim),
+		(this->rDim * this->cDim),
+		resultant->matrix,
+		resultant->rDim * resultant->cDim,
+		&local,
+		&global,
+		1
+	};
+
+	execute_kernel(minus_state);
 
 	return resultant;
 }
@@ -137,29 +161,58 @@ Matrix *Matrix::operator^ (const Matrix &operand)
 {
 	if (this->rDim != operand.rDim || this->cDim != operand.cDim)
 		return NULL;
-
-	int idx = 0;
 	Matrix *resultant = new Matrix(this->rDim, this->cDim);
 
-	for (idx = 0; idx < (this->rDim * this->cDim); idx++)
+	size_t local = 512;
+	size_t global = (this->rDim * this->cDim) * local;
+
+	ml_opencl_execution_state power_state =
 	{
-		resultant->matrix[idx] = pow (this->matrix[idx], operand.matrix[idx]);
-	}
+		5,
+		this->matrix,
+		(this->rDim * this->cDim),
+		operand.matrix,
+		(operand.rDim * operand.cDim),
+		(this->rDim * this->cDim),
+		(operand.rDim * operand.cDim),
+		(this->rDim * this->cDim),
+		resultant->matrix,
+		resultant->rDim * resultant->cDim,
+		&local,
+		&global,
+		1
+	};
+
+	execute_kernel(power_state);
 
 	return resultant;
 }
 
-void Matrix::PowerScalar(double scalr)
+void Matrix::PowerScalar(float scalr)
 {
-	int idx = 0;
-
-	for (idx = 0; idx < (this->rDim * this->cDim); idx++)
+	size_t local = 512;
+	size_t global = (this->rDim * this->cDim) * local;
+	ml_opencl_execution_state power_scalar_state =
 	{
-		this->matrix[idx] = pow(this->matrix[idx], scalr);
-	}
+		1,
+		this->matrix,
+		(this->rDim * this->cDim),
+		&scalr,
+		1,
+		(this->rDim * this->cDim),
+		1,
+		(this->rDim * this->cDim),
+		this->matrix,
+		(this->rDim * this->cDim),
+		&local,
+		&global,
+		1
+	};
+
+	execute_kernel(power_scalar_state);
 }
 
-void Matrix::MatrixPower(double scalr)
+void Matrix::MatrixPower(float scalr)
 {
 	int idx = 0;
 
@@ -169,7 +222,7 @@ void Matrix::MatrixPower(double scalr)
 	}
 }
 
-void Matrix::AddScalar(double scalr)
+void Matrix::AddScalar(float scalr)
 {
 	int idx = 0;
 
@@ -179,7 +232,7 @@ void Matrix::AddScalar(double scalr)
 	}
 }
 
-void Matrix::SubtractScalar(double scalr)
+void Matrix::SubtractScalar(float scalr)
 {
 	if (scalr < 0) printf("WARNING_SubtractScalar: scalr should be positive for subtraction, negative for addition.");
 
@@ -191,7 +244,7 @@ void Matrix::SubtractScalar(double scalr)
 	}
 }
 
-void Matrix::SubtractFromScalar(double scalr)
+void Matrix::SubtractFromScalar(float scalr)
 {
 	if (scalr < 0) printf("WARNING_SubtractScalar: scalr should be positive for subtraction, negative for addition.");
 
@@ -203,7 +256,7 @@ void Matrix::SubtractFromScalar(double scalr)
 	}
 }
 
-void Matrix::operateOnMatrixValues(double scalar, ScalarOps opType)
+void Matrix::operateOnMatrixValues(float scalar, ScalarOps opType)
 {
 	switch (opType)
 	{
@@ -234,13 +287,13 @@ void Matrix::operateOnMatrixValues(double scalar, ScalarOps opType)
 	}
 }
 
-void Matrix::operateOnMatrixValues(double scalar, BooleanOps opType)
+void Matrix::operateOnMatrixValues(float scalar, BooleanOps opType)
 {
 	int idx = 0;
 
 	for (idx = 0; idx < (this->rDim * this->cDim); idx++)
 	{
-		double this_element = this->matrix[idx];
+		float this_element = this->matrix[idx];
 		bool result = 0;
 
 		switch (opType)
@@ -268,7 +321,7 @@ void Matrix::operateOnMatrixValues(double scalar, BooleanOps opType)
 				break;
 		}
 
-		this->matrix[idx] = (double) result;
+		this->matrix[idx] = (float) result;
 	}
 }
 
@@ -281,8 +334,8 @@ void Matrix::operateOnMatrixValues(Matrix *otherMatrix, BooleanOps opType)
 
 	for (idx = 0; idx < (this->rDim * this->cDim); idx++)
 	{
-		double this_element = this->matrix[idx];
-		double that_element = otherMatrix->matrix[idx];
+		float this_element = this->matrix[idx];
+		float that_element = otherMatrix->matrix[idx];
 		bool result = 0;
 
 		switch (opType)
@@ -310,7 +363,7 @@ void Matrix::operateOnMatrixValues(Matrix *otherMatrix, BooleanOps opType)
 				break;
 		}
 
-		this->matrix[idx] = (double) result;
+		this->matrix[idx] = (float) result;
 	}
 }
 
@@ -324,7 +377,7 @@ void Matrix::Log_e()
 	}
 }
 
-void Matrix::MultiplyScalar(double scalr)
+void Matrix::MultiplyScalar(float scalr)
 {
 	int idx = 0;
 
@@ -334,13 +387,13 @@ void Matrix::MultiplyScalar(double scalr)
 	}
 }
 
-void Matrix::ReciprocalMultiply(double scalr)
+void Matrix::ReciprocalMultiply(float scalr)
 {
 	int idx = 0;
 
 	for (idx = 0; idx < (this->rDim * this->cDim); idx++)
 	{
-		this->matrix[idx] = (double)(scalr/ ((double)this->matrix[idx]));
+		this->matrix[idx] = (float)(scalr/ ((float)this->matrix[idx]));
 	}
 }
 
@@ -376,7 +429,7 @@ Matrix *Matrix::LoadMatrix(std::string fileName, char col_delimiter)
 
 	std::string nextLine;
 
-	std::vector<std::vector<double>> lines;
+	std::vector<std::vector<float>> lines;
 
 	/* iterators */
 	int r_idx = 0;
@@ -386,11 +439,11 @@ Matrix *Matrix::LoadMatrix(std::string fileName, char col_delimiter)
 	{
 		std::istringstream iss(nextLine);
 		std::string token;
-		std::vector<double> lineTokens = {};
+		std::vector<float> lineTokens = {};
 
 		{
 			std::getline(iss, token, col_delimiter);
-			double value = std::atof(token.c_str());
+			float value = std::atof(token.c_str());
 			lineTokens.push_back(value);
 
 			while (std::getline(iss, token, col_delimiter))
@@ -407,7 +460,7 @@ Matrix *Matrix::LoadMatrix(std::string fileName, char col_delimiter)
 
 	for (r_idx = 0; r_idx < lines.size(); r_idx++)
 	{
-		std::vector<double> line = lines[r_idx];
+		std::vector<float> line = lines[r_idx];
 		for (c_idx = 0; c_idx < line.size(); c_idx++)
 		{
 			Indexer *currentElement = new Indexer(r_idx, c_idx);
@@ -422,14 +475,14 @@ Matrix *Matrix::LoadMatrix(std::string fileName, char col_delimiter)
 void Matrix::AddBiasRow()
 {
 	int idx = 0;
-	double *new_matrix = new double[(this->rDim + 1) * this->cDim];
+	float *new_matrix = new float[(this->rDim + 1) * this->cDim];
 
 	for (idx = 0; idx < this->cDim; idx++)
 	{
 		new_matrix[(0 * this->cDim) + idx] = 1;
 	}
 
-	memcpy(&new_matrix[(1 * this->cDim) + 0], this->matrix, sizeof(double) * (this->rDim * this->cDim));
+	memcpy(&new_matrix[(1 * this->cDim) + 0], this->matrix, sizeof(float) * (this->rDim * this->cDim));
 
 	delete this->matrix;
 
@@ -444,7 +497,7 @@ void Matrix::AddBiasCol()
 	int r_idx = 0;
 	int c_idx = 0;
 
-	double *new_matrix = new double[this->rDim * (this->cDim + 1)];
+	float *new_matrix = new float[this->rDim * (this->cDim + 1)];
 
 	for (idx = 0; idx < this->rDim; idx++)
 	{
@@ -468,18 +521,33 @@ void Matrix::AddBiasCol()
 
 void Matrix::Transpose()
 {
-	double *new_matrix = new double[this->rDim * (this->cDim)];
-	int r_idx = 0;
-	int c_idx = 0;
+	float *new_matrix = new float[this->rDim * (this->cDim)];
 	int temp = 0;
 
-	for (r_idx = 0; r_idx < this->rDim; r_idx++)
+	size_t local[2];
+	local[0] = 512;
+	local[1] = 512;
+	size_t global[2];
+	global[0] = (this->numRows());
+	global[1] = (this->numCols());
+	ml_opencl_execution_state transpose_state =
 	{
-		for (c_idx = 0; c_idx < this->cDim; c_idx++)
-		{
-			new_matrix[(c_idx * (this->rDim)) + r_idx] = this->matrix[(r_idx * this->cDim) + c_idx];
-		}
-	}
+		9,
+		this->matrix,
+		this->cDim * this->rDim,
+		NULL,
+		1,
+		this->rDim,
+		this->cDim,
+		0,
+		new_matrix,
+		this->cDim * this->rDim,
+		NULL,
+		global,
+		2
+	};
+	execute_kernel(transpose_state);
+
 	temp = this->cDim;
 	this->cDim = this->rDim;
 	this->rDim = temp;
@@ -489,60 +557,66 @@ void Matrix::Transpose()
 
 Matrix *Matrix::Mean()
 {
-	int c_idx, r_idx = 0;
+	static float time_spent_here = 0;
+	const clock_t begin_time = clock();
+
 	Matrix &data = (*this);
 	Matrix &Data_Mean = *(new Matrix(1, data.numCols()));
 
-	for (c_idx = 0; c_idx < data.numCols(); c_idx++)
+	size_t local[1];
+	local[0] = 512;
+	size_t global[1];
+	global[0] = (data.numCols()) * local[0];
+	ml_opencl_execution_state mean_state =
 	{
-		double colRunningCount = 0;
+		6,
+		this->matrix,
+		this->cDim * this->rDim,
+		NULL,
+		1,
+		this->rDim,
+		this->cDim,
+		0,
+		Data_Mean.matrix,
+		1 * data.cDim,
+		local,
+		global,
+		1
+	};
+	execute_kernel(mean_state);
+	time_spent_here += float( clock () - begin_time ) /  CLOCKS_PER_SEC;
 
-		for (r_idx = 0; r_idx < data.numRows(); r_idx++)
-		{
-			Indexer *currentIndex = new Indexer(r_idx, c_idx);
-			colRunningCount = colRunningCount + data[currentIndex];
-			delete currentIndex;
-		}
-
-		Indexer *currentMean = new Indexer(0, c_idx);
-		Data_Mean[currentMean] = (((double)(colRunningCount)) / ((double) data.numRows()));
-		delete currentMean;
-	}
 	return &Data_Mean;
 }
 
 Matrix *Matrix::StdDev()
 {
-	int c_idx, r_idx = 0;
+
 	Matrix &data = (*this);
 	Matrix &Data_Mean = (*this->Mean());
 	Matrix &Data_STD = *(new Matrix(1, data.numCols()));
 
-	for (c_idx = 0; c_idx < data.numCols(); c_idx++)
+	size_t local[1];
+	local[0] = 512;
+	size_t global[1];
+	global[0] = (data.numCols()) * local[0];
+	ml_opencl_execution_state mean_state =
 	{
-		Indexer *colMeanIndex = new Indexer(0, c_idx);
-		double colRunningCount = 0;
-		double colMean = Data_Mean[colMeanIndex];
-
-		for (r_idx = 0; r_idx < data.numRows(); r_idx++)
-		{
-			Indexer *currentIndex = new Indexer(r_idx, c_idx);
-
-			double indexValue = data[currentIndex];
-			indexValue = indexValue - colMean;
-			indexValue = fabs(indexValue);
-			indexValue = pow(indexValue, (double) 2);
-			colRunningCount = colRunningCount + indexValue;
-
-			delete currentIndex;
-		}
-
-		/* NOTE: Uses MATLAB's formula for standard deviation */
-		colRunningCount = (((double)(colRunningCount)) / ((double) (data.numRows() - 1)));
-		Data_STD[colMeanIndex] = (sqrt(colRunningCount));
-
-		delete colMeanIndex;
-	}
+		8,
+		this->matrix,
+		this->cDim * this->rDim,
+		Data_Mean.matrix,
+		Data_Mean.cDim * Data_Mean.rDim,
+		this->rDim,
+		this->cDim,
+		0,
+		Data_STD.matrix,
+		1 * data.cDim,
+		local,
+		global,
+		1
+	};
+	execute_kernel(mean_state);
 
 	delete &Data_Mean;
 	return &Data_STD;
@@ -550,24 +624,30 @@ Matrix *Matrix::StdDev()
 
 Matrix *Matrix::Sum()
 {
-	int c_idx, r_idx = 0;
 	Matrix &data = (*this);
 	Matrix &Data_Sum = (*new Matrix(1, data.numCols()));
 
-	for (c_idx = 0; c_idx < data.numCols(); c_idx++)
+	size_t local[1];
+	local[0] = 512;
+	size_t global[1];
+	global[0] = (data.numCols()) * local[0];
+	ml_opencl_execution_state sum_state =
 	{
-		double runningColCount = 0;
-		for (r_idx = 0; r_idx < data.numRows(); r_idx++)
-		{
-			Indexer *currentIndex = new Indexer(r_idx, c_idx);
-			runningColCount = runningColCount + data[currentIndex];
-			delete currentIndex;
-		}
-		Indexer *currentMean = new Indexer(0, c_idx);
-		Data_Sum[currentMean] = runningColCount;
-		delete currentMean;
-	}
-
+		7,
+		this->matrix,
+		this->cDim * this->rDim,
+		NULL,
+		1,
+		this->rDim,
+		this->cDim,
+		0,
+		Data_Sum.matrix,
+		1 * data.cDim,
+		local,
+		global,
+		1
+	};
+	execute_kernel(sum_state);
 	return &Data_Sum;
 }
 
@@ -579,7 +659,7 @@ Matrix *Matrix::MaxRowNumber()
 
 	for (c_idx = 0; c_idx < data.numCols(); c_idx++)
 	{
-		double currentMax = -__DBL_MAX__;
+		float currentMax = -__DBL_MAX__;
 		int cur_ridx = 0;
 		for (r_idx = 0; r_idx < data.numRows(); r_idx++)
 		{

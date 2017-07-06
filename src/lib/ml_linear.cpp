@@ -10,10 +10,10 @@
 #include "include/ml_linear.hpp"
 
 
-double ML_LinearOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix &training_theta)
+float ML_LinearOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix &training_theta)
 {
 	int numTrainingExamples = training_y.numRows();
-	double currentCost = 0;
+	float currentCost = 0;
 	int idx = 0;
 
 	Matrix *X = new Matrix(training_X);
@@ -42,7 +42,7 @@ double ML_LinearOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix 
 
 	result->operateOnMatrixValues(2, OP_RAISE_EVERY_MATRIX_ELEMENT_TO_SCALAR_POWER);
 
-	double divisor = (1.0 / (2.0 * (double) numTrainingExamples));
+	float divisor = (1.0 / (2.0 * (float) numTrainingExamples));
 	for (idx = 0; idx < numTrainingExamples; idx++)
 	{
 		currentCost += divisor * (*result)[idx];
@@ -54,11 +54,11 @@ double ML_LinearOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix 
 	return currentCost;
 }
 
-Matrix *ML_LinearOps::gradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, double alpha, int num_iterations)
+Matrix *ML_LinearOps::gradientDescent(Matrix &training_X, Matrix &training_y, Matrix &theta, float alpha, int num_iterations)
 {
 	int numTrainingExamples = training_y.numRows();
 	int iteration_idx = 0;
-	double min_constant = alpha * (1/((double) numTrainingExamples));
+	float min_constant = alpha * (1/((float) numTrainingExamples));
 
 	Matrix *result = new Matrix(theta);
 	Matrix *temp_result;
@@ -123,14 +123,14 @@ Matrix *ML_DataOps::NormalizeData(Matrix &data)
 	for (c_idx = 0; c_idx < data.numCols(); c_idx++)
 	{
 		Indexer *colMeanIndex = new Indexer(0, c_idx);
-		double colMean = Data_Mean[colMeanIndex];
-		double colStd = Data_STD[colMeanIndex];
+		float colMean = Data_Mean[colMeanIndex];
+		float colStd = Data_STD[colMeanIndex];
 
 		for (r_idx = 0; r_idx < data.numRows(); r_idx++)
 		{
 			Indexer *currentIndex = new Indexer(r_idx, c_idx);
 
-			double indexValue = data[currentIndex];
+			float indexValue = data[currentIndex];
 			indexValue = indexValue - colMean;
 			indexValue = indexValue / colStd;
 

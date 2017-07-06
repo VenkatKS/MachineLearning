@@ -80,31 +80,31 @@ class Matrix
 private:
 	int rDim = 0;
 	int cDim = 0;
-	double *matrix = 0;
-	void AddScalar(double scalr);
-	void SubtractScalar(double scalr);
-	void SubtractFromScalar(double scalr);
-	void PowerScalar(double scalr);
-	void MatrixPower(double scalr);
-	void MultiplyScalar(double scalr);
-	void ReciprocalMultiply(double scalr);
+	float *matrix = 0;
+	void AddScalar(float scalr);
+	void SubtractScalar(float scalr);
+	void SubtractFromScalar(float scalr);
+	void PowerScalar(float scalr);
+	void MatrixPower(float scalr);
+	void MultiplyScalar(float scalr);
+	void ReciprocalMultiply(float scalr);
 
 public:
 	Matrix(int rDim, int cDim);
 	Matrix(Matrix &other);
-	Matrix(int rDim, int cDim, double *raw_data);
+	Matrix(int rDim, int cDim, float *raw_data);
 	~Matrix();
 
 	/* Get/Set */
 	int numCols() { return this->cDim; }
 	int numRows() { return this->rDim; }
-	double* getRaw() { return this->matrix; }
+	float* getRaw() { return this->matrix; }
 
 	/* Matrix Functions */
 	void AddBiasRow();
 	void AddBiasCol();
-	void operateOnMatrixValues(double scalar, ScalarOps opType);
-	void operateOnMatrixValues(double scalar, BooleanOps opType);
+	void operateOnMatrixValues(float scalar, ScalarOps opType);
+	void operateOnMatrixValues(float scalar, BooleanOps opType);
 	void operateOnMatrixValues(Matrix *otherMatrix, BooleanOps opType);
 	void Transpose();
 	void Log_e();
@@ -118,9 +118,9 @@ public:
 	Matrix *MaxRowNumber();
 
 	/* Operators */
-	double &operator[] (Indexer *operand);
-	const double &operator[] (const Indexer *operand) const;
-	double &operator[] (int index);
+	float &operator[] (Indexer *operand);
+	const float &operator[] (const Indexer *operand) const;
+	float &operator[] (int index);
 	Matrix *operator* (const Matrix &operand);
 	Matrix *operator+ (const Matrix &operand);
 	Matrix *operator- (const Matrix &operand);
