@@ -13,7 +13,7 @@
 #include "../lib/include/2DMatrix.hpp"
 #include "../lib/include/ml_linear.hpp"
 #include "../lib/include/ml_log.hpp"
-#include "../lib/drivers/opencl_driver.hpp"
+#include "../lib/include/opencl_driver.hpp"
 
 /*
  *	PLEASE NOTE:
@@ -269,7 +269,7 @@ int main(int argc, const char * argv[]) {
 	assert (ROUGHLY_EQUAL((*result)[0], 0.676600039));
 	printf("4b) Predictions Match Expected Accuracy Test: Passed\n");
 
-	printf("\n\nDONE: All Pass within a deviation less than %e %% from MatLab's results.\n", EPSILON);
+	printf("\n\nDONE: Pass within a deviation less than %e %% from MatLab's results.\n", EPSILON);
 
 	return 0;
 }
