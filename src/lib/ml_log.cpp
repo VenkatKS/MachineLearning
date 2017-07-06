@@ -71,7 +71,7 @@ float ML_LogOps::computeCost(Matrix &training_X, Matrix &training_y, Matrix &tra
 	float *A = result.getRaw();
 	float *res = sum_result.getRaw();
 	const int result_cols = result.numCols();
-#pragma clang loop vectorize(enable)
+
 	for (c_idx = 0; c_idx < result.numCols(); c_idx++)
 	{
 		float runningColCount = 0;
@@ -115,7 +115,7 @@ Matrix *ML_LogOps::gradientCalculate(Matrix &training_X, Matrix &training_y, Mat
 	Matrix *interim_hypothesis = (X * theta);
 	Matrix *hypothesis = sigmoid(*interim_hypothesis);
 	Matrix *TermOne = (*hypothesis) - training_y;
-	Matrix *TermTwo = new Matrix(X.numRows(), X.numCols());
+	Matrix *TermTwo = NULL;
 	Matrix *gradient = NULL;
 
 	delete hypothesis;
@@ -303,6 +303,8 @@ Matrix *ML_LogOps::OneVsAll(Matrix &training_X, Matrix &training_y, int num_clas
 			delete currentFeatureForCurrentTheta;
 		}
 	}
+
+	delete[] all_theta;
 
 	return &return_matrix;
 }

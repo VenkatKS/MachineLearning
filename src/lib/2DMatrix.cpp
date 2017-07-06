@@ -73,8 +73,8 @@ Matrix *Matrix::operator*(const Matrix &operand)
 	size_t globalWorkSize[3];
 	localWorkSize[0] = 16;
 	localWorkSize[1] = 16;
-	globalWorkSize[0] = this->rDim * localWorkSize[0];
-	globalWorkSize[1] = operand.cDim * localWorkSize[1];
+	globalWorkSize[0] = this->rDim;
+	globalWorkSize[1] = operand.cDim;
 	ml_opencl_execution_state multiply_state =
 	{
 		2,
@@ -102,8 +102,7 @@ Matrix *Matrix::operator+(const Matrix &operand)
 		return NULL;
 	Matrix *resultant = new Matrix(this->rDim, this->cDim);
 
-	size_t local = 512;
-	size_t global = (this->rDim * this->cDim) * local;
+	size_t global = (this->rDim * this->cDim);
 	ml_opencl_execution_state sum_state =
 	{
 		3,
@@ -116,7 +115,7 @@ Matrix *Matrix::operator+(const Matrix &operand)
 		(this->rDim * this->cDim),
 		resultant->matrix,
 		resultant->rDim * resultant->cDim,
-		&local,
+		NULL,
 		&global,
 		1
 	};
@@ -132,8 +131,7 @@ Matrix *Matrix::operator-(const Matrix &operand)
 		return NULL;
 	Matrix *resultant = new Matrix(this->rDim, this->cDim);
 
-	size_t local = 512;
-	size_t global = (this->rDim * this->cDim) * local;
+	size_t global = (this->rDim * this->cDim);
 
 	ml_opencl_execution_state minus_state =
 	{
@@ -147,7 +145,7 @@ Matrix *Matrix::operator-(const Matrix &operand)
 		(this->rDim * this->cDim),
 		resultant->matrix,
 		resultant->rDim * resultant->cDim,
-		&local,
+		NULL,
 		&global,
 		1
 	};
@@ -163,8 +161,7 @@ Matrix *Matrix::operator^ (const Matrix &operand)
 		return NULL;
 	Matrix *resultant = new Matrix(this->rDim, this->cDim);
 
-	size_t local = 512;
-	size_t global = (this->rDim * this->cDim) * local;
+	size_t global = (this->rDim * this->cDim);
 
 	ml_opencl_execution_state power_state =
 	{
@@ -178,7 +175,7 @@ Matrix *Matrix::operator^ (const Matrix &operand)
 		(this->rDim * this->cDim),
 		resultant->matrix,
 		resultant->rDim * resultant->cDim,
-		&local,
+		NULL,
 		&global,
 		1
 	};
@@ -190,8 +187,7 @@ Matrix *Matrix::operator^ (const Matrix &operand)
 
 void Matrix::PowerScalar(float scalr)
 {
-	size_t local = 512;
-	size_t global = (this->rDim * this->cDim) * local;
+	size_t global = (this->rDim * this->cDim);
 	ml_opencl_execution_state power_scalar_state =
 	{
 		1,
@@ -204,7 +200,7 @@ void Matrix::PowerScalar(float scalr)
 		(this->rDim * this->cDim),
 		this->matrix,
 		(this->rDim * this->cDim),
-		&local,
+		NULL,
 		&global,
 		1
 	};
@@ -524,9 +520,6 @@ void Matrix::Transpose()
 	float *new_matrix = new float[this->rDim * (this->cDim)];
 	int temp = 0;
 
-	size_t local[2];
-	local[0] = 512;
-	local[1] = 512;
 	size_t global[2];
 	global[0] = (this->numRows());
 	global[1] = (this->numCols());
@@ -563,10 +556,8 @@ Matrix *Matrix::Mean()
 	Matrix &data = (*this);
 	Matrix &Data_Mean = *(new Matrix(1, data.numCols()));
 
-	size_t local[1];
-	local[0] = 512;
 	size_t global[1];
-	global[0] = (data.numCols()) * local[0];
+	global[0] = (data.numCols());
 	ml_opencl_execution_state mean_state =
 	{
 		6,
@@ -579,7 +570,7 @@ Matrix *Matrix::Mean()
 		0,
 		Data_Mean.matrix,
 		1 * data.cDim,
-		local,
+		NULL,
 		global,
 		1
 	};
@@ -596,10 +587,8 @@ Matrix *Matrix::StdDev()
 	Matrix &Data_Mean = (*this->Mean());
 	Matrix &Data_STD = *(new Matrix(1, data.numCols()));
 
-	size_t local[1];
-	local[0] = 512;
 	size_t global[1];
-	global[0] = (data.numCols()) * local[0];
+	global[0] = (data.numCols());
 	ml_opencl_execution_state mean_state =
 	{
 		8,
@@ -612,7 +601,7 @@ Matrix *Matrix::StdDev()
 		0,
 		Data_STD.matrix,
 		1 * data.cDim,
-		local,
+		NULL,
 		global,
 		1
 	};
@@ -627,10 +616,8 @@ Matrix *Matrix::Sum()
 	Matrix &data = (*this);
 	Matrix &Data_Sum = (*new Matrix(1, data.numCols()));
 
-	size_t local[1];
-	local[0] = 512;
 	size_t global[1];
-	global[0] = (data.numCols()) * local[0];
+	global[0] = (data.numCols());
 	ml_opencl_execution_state sum_state =
 	{
 		7,
@@ -643,7 +630,7 @@ Matrix *Matrix::Sum()
 		0,
 		Data_Sum.matrix,
 		1 * data.cDim,
-		local,
+		NULL,
 		global,
 		1
 	};

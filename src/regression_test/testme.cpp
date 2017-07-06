@@ -35,6 +35,8 @@
 	((fabs((float) ((_float_1 - _float_2)/(_float_2))) * 100) < ((float) EPSILON))
 
 int main(int argc, const char * argv[]) {
+	clock_t begin = std::clock();
+
 	int idx = 0;
 	setUpOpenCLDrivers();
 
@@ -269,7 +271,11 @@ int main(int argc, const char * argv[]) {
 	assert (ROUGHLY_EQUAL((*result)[0], 0.676600039));
 	printf("4b) Predictions Match Expected Accuracy Test: Passed\n");
 
-	printf("\n\nDONE: Pass within a deviation less than %e %% from MatLab's results.\n", EPSILON);
+	clock_t end = std::clock();
+	double elapsed_seconds = double(end - begin) / CLOCKS_PER_SEC;
+	std::cout << "\nExecution Time Taken: " << elapsed_seconds << "\n";
+
+	printf("\n\nDONE: All Pass within a deviation less than %e %% from MatLab's results.\n", EPSILON);
 
 	return 0;
 }

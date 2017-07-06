@@ -94,7 +94,6 @@ int execute_kernel(ml_opencl_execution_state &execution_environment)
 	float *input_two = execution_environment.input_two;
 	float *out = execution_environment.output;
 
-	size_t *local = execution_environment.local;
 	size_t *global = execution_environment.global;
 
 	cl_uint numDims = execution_environment.numDimms;
@@ -102,7 +101,6 @@ int execute_kernel(ml_opencl_execution_state &execution_environment)
 	cl_context &context = all_kern[k_id].context;
 	cl_kernel &kernel = all_kern[k_id].kernel;
 	cl_command_queue &commands = all_kern[k_id].commands;
-	cl_device_id device_id = all_kern[k_id].device_id;
 
 	cl_mem input1 = nullptr;
 	cl_mem input2 = nullptr;
@@ -116,6 +114,7 @@ int execute_kernel(ml_opencl_execution_state &execution_environment)
 		input2 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,  sizeof(float) * mem_two, input_two, &err);
 	if (err != CL_SUCCESS) goto failed;
 	output = clCreateBuffer(context, CL_MEM_READ_WRITE, sizeof(float) * mem_three, NULL, &err);
+
 	if ((input_one && !input1) || (input_two && !input2) || !output)
 	{
 		printf("Error: Failed to allocate device memory!\n");
@@ -143,19 +142,10 @@ failed:
 		exit(1);
 	}
 
-	// Get the maximum work group size for executing the kernel on the device
-	//
-	err = clGetKernelWorkGroupInfo(kernel, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &all_kern[k_id].local, NULL);
-	if (err != CL_SUCCESS)
-	{
-		printf("Error: Failed to retrieve kernel work group info! %d\n", err);
-		exit(1);
-	}
-
 	// Execute the kernel over the entire range of our 1d input data set
 	// using the maximum number of work group items for this device
 	//
-	err = clEnqueueNDRangeKernel(commands, kernel, numDims, NULL, global, local, 0, NULL, NULL);
+	err = clEnqueueNDRangeKernel(commands, kernel, numDims, NULL, global, NULL, 0, NULL, NULL);
 	if (err)
 	{
 		printf("Error: Failed to execute kernel!\n");
@@ -174,9 +164,10 @@ failed:
 		printf("Error: Failed to read output array! %d\n", err);
 		exit(1);
 	}
-
-	clReleaseMemObject(input1);
-	clReleaseMemObject(input2);
+	if (input_one)
+		clReleaseMemObject(input1);
+	if (input_two)
+		clReleaseMemObject(input2);
 	clReleaseMemObject(output);
 
 	return 0;
