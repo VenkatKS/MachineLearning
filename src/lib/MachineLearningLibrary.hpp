@@ -136,14 +136,18 @@ typedef struct LinearRegressionFit {
 	}
 } LinearRegressionFit;
 
-typedef struct {
-	DataSetWrapper *data;
+typedef struct LogisiticClassificationFit {
+	DataSetWrapper *data = NULL;
 	/* Number of classification categories */
 	int numCategories;
 	/* Ideal is 0.01 */
 	float learning_rate = 0.01;
 	/* Ideal is 0.01 */
 	float regularization_rate = 0.1;
+
+	LogisiticClassificationFit(DataSetWrapper* data, int numCategories, float learning_rate, float regularization_rate) : data(data), numCategories(numCategories), learning_rate(learning_rate), regularization_rate(regularization_rate)
+	{
+	}
 } LogisiticClassificationFit;
 
 typedef struct {
