@@ -95,7 +95,7 @@ Matrix *Matrix::operator*(const Matrix &operand)
 		2
 	};
 
-	execute_kernel(multiply_state);
+	get_active_session().execute_kernel(multiply_state);
 	return result_matrix;
 }
 
@@ -123,7 +123,7 @@ Matrix *Matrix::operator+(const Matrix &operand)
 		1
 	};
 
-	execute_kernel(sum_state);
+	get_active_session().execute_kernel(sum_state);
 
 	return resultant;
 }
@@ -153,7 +153,7 @@ Matrix *Matrix::operator-(const Matrix &operand)
 		1
 	};
 
-	execute_kernel(minus_state);
+	get_active_session().execute_kernel(minus_state);
 
 	return resultant;
 }
@@ -183,7 +183,7 @@ Matrix *Matrix::operator^ (const Matrix &operand)
 		1
 	};
 
-	execute_kernel(power_state);
+	get_active_session().execute_kernel(power_state);
 
 	return resultant;
 }
@@ -208,7 +208,7 @@ void Matrix::PowerScalar(float scalr)
 		1
 	};
 
-	execute_kernel(power_scalar_state);
+	get_active_session().execute_kernel(power_scalar_state);
 }
 
 void Matrix::MatrixPower(float scalr)
@@ -547,7 +547,7 @@ void Matrix::Transpose()
 		global,
 		2
 	};
-	execute_kernel(transpose_state);
+	get_active_session().execute_kernel(transpose_state);
 
 	temp = this->cDim;
 	this->cDim = this->rDim;
@@ -582,7 +582,7 @@ Matrix *Matrix::Mean()
 		global,
 		1
 	};
-	execute_kernel(mean_state);
+	get_active_session().execute_kernel(mean_state);
 	time_spent_here += float( clock () - begin_time ) /  CLOCKS_PER_SEC;
 
 	return &Data_Mean;
@@ -613,7 +613,7 @@ Matrix *Matrix::StdDev()
 		global,
 		1
 	};
-	execute_kernel(mean_state);
+	get_active_session().execute_kernel(mean_state);
 
 	delete &Data_Mean;
 	return &Data_STD;
@@ -642,7 +642,7 @@ Matrix *Matrix::Sum()
 		global,
 		1
 	};
-	execute_kernel(sum_state);
+	get_active_session().execute_kernel(sum_state);
 	return &Data_Sum;
 }
 

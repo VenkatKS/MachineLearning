@@ -2,6 +2,7 @@
 
 #include "ml_opencl_kernels.hpp"
 #include "opencl_driver.hpp"
+#include "../MachineLearningLibrary.hpp"
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,11 +13,11 @@
 #include <sys/stat.h>
 #include <OpenCL/opencl.h>
 
-#define MAX_KERNELS (100)
 
-ml_opencl_kernel_data all_kern[MAX_KERNELS];
+/* The current active OPENCL kernel configuration */
+opencl_driver *active_driver = NULL;
 
-int setupKernel(int k_id, const char *kernName, const char *progName)
+int opencl_driver::setupKernel(int k_id, const char *kernName, const char *progName)
 {
 	int err;
 
@@ -79,7 +80,7 @@ int setupKernel(int k_id, const char *kernName, const char *progName)
 	return 0;
 }
 
-int execute_kernel(ml_opencl_execution_state &execution_environment)
+int opencl_driver::execute_kernel(ml_opencl_execution_state &execution_environment)
 {
 	int k_id = execution_environment.k_id;
 	long mem_one = execution_environment.input_one_sz;
@@ -173,7 +174,7 @@ failed:
 	return 0;
 }
 
-int destroy_kernel(int k_id)
+int opencl_driver::destroy_kernel(int k_id)
 {
 	cl_context &context = all_kern[k_id].context;
 	cl_kernel &kernel = all_kern[k_id].kernel;
@@ -190,12 +191,9 @@ int destroy_kernel(int k_id)
 	return 0;
 }
 
-int setUpOpenCLDrivers()
+int opencl_driver::setUpOpenCLDrivers()
 {
 	/* Set to main to exercise OPENCL driver changes */
-
-	/* Set up matrix square kernel */
-	//setupKernel(0, MatrixSquareElements, "matrixsquareelements");
 
 	/* Set up matrix scalar power kernel */
 	setupKernel(1, MatrixPowerScalar, "matrixpowerscalar");

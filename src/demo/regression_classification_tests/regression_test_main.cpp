@@ -18,8 +18,6 @@ int main()
 {
 	printf("Machine Learning Library Regression Test\n");
 
-	setUpOpenCLDrivers();
-
 	/* Test 2 and 3 variable linear learning */
 	linear_regression_test *test_linear = new linear_regression_test();
 

@@ -42,7 +42,6 @@ bool log_regression_test::run_single_feature_test()
 	Matrix *X = Matrix::LoadMatrix("data/Classification/X1_data.txt", ',');
 	Matrix *y = Matrix::LoadMatrix("data/Classification/y1_data.txt", ',');
 	float result = 0.0;
-	bool match = true;
 
 	Matrix *theta_0 = new Matrix::Matrix(3, 1);
 	Matrix *theta_1 = new Matrix::Matrix(3, 1);

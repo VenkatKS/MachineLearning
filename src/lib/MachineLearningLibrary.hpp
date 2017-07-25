@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include "LinearAlgebraLibrary/include/2DMatrix.hpp"
+
 /*
  *	GENERAL ASSUMPTIONS:
  *		The library assumes a few things, and these assumptions apply to every function.

@@ -12,6 +12,9 @@
 #include <stdio.h>
 #include <OpenCL/opencl.h>
 
+#define MAX_KERNELS	(100)
+
+class MachineLearning;
 
 class ml_opencl_kernel_data
 {
@@ -44,10 +47,30 @@ public:
 	cl_uint numDimms;
 };
 
-int setUpOpenCLDrivers();
-int execute_kernel(ml_opencl_execution_state &execution_environment);
+class opencl_driver
+{
+private:
+	ml_opencl_kernel_data all_kern[MAX_KERNELS];
 
+	int setupKernel(int k_id, const char *kernName, const char *progName);
+	int destroy_kernel(int k_id);
+	
+public:
+	int setUpOpenCLDrivers();
+	int execute_kernel(ml_opencl_execution_state &execution_environment);
+};
 
+extern opencl_driver *active_driver;
+inline opencl_driver &get_active_session()
+{
+	if (active_driver == NULL)
+	{
+		active_driver = (opencl_driver *) malloc(sizeof(opencl_driver));
+		active_driver->setUpOpenCLDrivers();
+	}
+
+	return (*active_driver);
+}
 
 
 #endif /* opencl_driver_hpp */
