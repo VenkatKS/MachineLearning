@@ -49,7 +49,7 @@ bool log_regression_test::run_single_feature_test()
 	/* Create our machine learning object using the loaded data as our operating data set */
 	DataSetWrapper *test_wrapper = new DataSetWrapper(X, y);
 
-	/* Create a linear regression fit model */
+	/* Create a logistic regression fit model */
 	LogisiticClassificationFit *logfit = new LogisiticClassificationFit(test_wrapper, 10, 0.001, 0);
 	MachineLearning *logisticOperations = new MachineLearning(*logfit);
 	ML_SingleLogOps *algoModel =  (ML_SingleLogOps *)logisticOperations->Algorithms();
@@ -121,6 +121,7 @@ bool log_regression_test::run_single_feature_test()
 	if (!(this->roughly_equal((*theta_0)[0], (float) expected_results[10])))
 		goto clean_up_false;
 
+	delete logisticOperations;
 
 	return true;
 
@@ -133,7 +134,64 @@ clean_up_false:
 
 bool log_regression_test::run_multi_feature_test()
 {
+	float expected_results[] =
+	{
+		/* Expected cost for dataset fitted with pre-selected parameters */
+		2.534819396109744,
+
+		/* Expected optimized parameters for dataset */
+		0.146561367924898,
+		-0.548558411853160,
+		0.724722272109289,
+		1.398002956071738
+	};
+
+	Matrix *X = Matrix::LoadMatrix("data/Classification/X2_data.txt", ',');
+	Matrix *y = Matrix::LoadMatrix("data/Classification/y2_data.txt", ',');
+	Matrix *regularized_gradients = NULL;
+
+	/* Create our machine learning object using the loaded data as our operating data set */
+	DataSetWrapper *test_wrapper = new DataSetWrapper(X, y);
+
+	/* Create a linear regression fit model */
+	LogisiticClassificationFit *logfit = new LogisiticClassificationFit(test_wrapper, 10, 0.001, 3);
+	MachineLearning *logisticOperations = new MachineLearning(*logfit);
+
+	/* theta_t = [-2; -1; 1; 2]; */
+	Matrix *theta_0 = new Matrix(4, 1);
+	(*theta_0)[0] = -2;
+	(*theta_0)[1] = -1;
+	(*theta_0)[2] = 1;
+	(*theta_0)[3] = 2;
+	float result = logisticOperations->Algorithms()->computeCost(*theta_0);
+
+	if (!(this->roughly_equal(result, (float) expected_results[0])))
+		goto clean_up_false;
+
+	regularized_gradients = logisticOperations->Algorithms()->gradientCalculate(*theta_0);
+
+	if (!(this->roughly_equal((*regularized_gradients)[0], (float) expected_results[1])))
+		goto clean_up_false;
+
+	if (!(this->roughly_equal((*regularized_gradients)[1], (float) expected_results[2])))
+		goto clean_up_false;
+
+	if (!(this->roughly_equal((*regularized_gradients)[2], (float) expected_results[3])))
+		goto clean_up_false;
+
+	if (!(this->roughly_equal((*regularized_gradients)[3], (float) expected_results[4])))
+		goto clean_up_false;
+
+	delete regularized_gradients;
+
 	return true;
+
+clean_up_false:
+	delete X;
+	delete y;
+	delete theta_0;
+	return false;
+
 }
 
 bool log_regression_test::run_test()
