@@ -1,7 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "ml_opencl_kernels.hpp"
-#include "opencl_driver.hpp"
+#include "include/ml_opencl_kernels.hpp"
+#include "include/opencl_driver.hpp"
+#include "../LinearAlgebraLibrary/include/2DMatrix.hpp"
 #include "../MachineLearningLibrary.hpp"
 #include <fcntl.h>
 #include <stdio.h>
@@ -110,10 +111,12 @@ int opencl_driver::execute_kernel(ml_opencl_execution_state &execution_environme
 	int err = 0;
 	if (input_one)
 		input1 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,  sizeof(float) * mem_one, input_one, &err);
-	if (err != CL_SUCCESS) goto failed;
+	if (err != CL_SUCCESS)
+		goto failed;
 	if (input_two)
 		input2 = clCreateBuffer(context,  CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,  sizeof(float) * mem_two, input_two, &err);
-	if (err != CL_SUCCESS) goto failed;
+	if (err != CL_SUCCESS)
+		goto failed;
 	output = clCreateBuffer(context, CL_MEM_READ_WRITE, sizeof(float) * mem_three, NULL, &err);
 
 	if ((input_one && !input1) || (input_two && !input2) || !output)

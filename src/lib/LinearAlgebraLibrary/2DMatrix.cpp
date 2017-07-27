@@ -70,7 +70,8 @@ Matrix *Matrix::operator*(const Matrix &operand)
 	Matrix *result_matrix = new Matrix(this->rDim, operand.cDim);
 
 	/* Ensure that the dimensions are proper */
-	if (this->cDim != operand.rDim) return NULL;
+	if (this->cDim != operand.rDim)
+		return NULL;
 
 	size_t localWorkSize[3];
 	size_t globalWorkSize[3];

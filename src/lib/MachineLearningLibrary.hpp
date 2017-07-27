@@ -10,7 +10,6 @@
 #define MachineLearningLibrary_hpp
 
 #include <stdio.h>
-#include "LinearAlgebraLibrary/include/2DMatrix.hpp"
 
 /*
  *	GENERAL ASSUMPTIONS:
@@ -67,6 +66,12 @@ public:
 	}
 };
 
+typedef enum {
+	LINEAR_REGRESSION_MODEL,
+	LOG_SINGLE_CLASSIFICATION_MODEL,
+	LOG_MULTI_CLASSIFICATION_MODEL,
+	NEURAL_NETWORK_MODEL
+} fit_category;
 
 class MachineLearningFitModel
 {
@@ -118,11 +123,13 @@ public:
 	 * The higher the max number of iterations, the slower the processing time, but the better the fit.
 	 * This is a very computationally intensive algorithm, so much of it is parallelized using OPENCL.
 	 */
-	virtual Matrix *GradientDescent(Matrix &initial_params,  int num_iterations) = 0;
+	virtual Matrix *Optimize(Matrix &initial_params,  int num_iterations) = 0;
 	/*
 	 * Given the provided parameters, returns the predicted results for each example.
 	 */
 	virtual Matrix *Predict(Matrix &input_to_evaluate, Matrix &parameters, float threshold) = 0;
+
+	inline virtual fit_category GetCategoryOfFit() = 0;
 
 	/* Normalize the Matrix to allow for more even weighted features */
 	void NormalizeFeatureData();

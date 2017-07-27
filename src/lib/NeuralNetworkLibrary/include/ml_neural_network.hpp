@@ -11,7 +11,6 @@
 
 #include <stdio.h>
 #include <cassert>
-#include "2DMatrix.hpp"
 
 class neural_network
 {

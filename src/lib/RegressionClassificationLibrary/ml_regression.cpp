@@ -8,6 +8,8 @@
 
 #include <math.h>
 #include <cassert>
+#include "../LinearAlgebraLibrary/include/2DMatrix.hpp"
+#include "../MachineLearningLibrary.hpp"
 #include "include/ml_regression.hpp"
 
 
@@ -60,7 +62,7 @@ Matrix *ML_LinearOps::gradientCalculate(Matrix &params_to_derivate)
 	return NULL;
 }
 
-Matrix *ML_LinearOps::GradientDescent(Matrix &initial_params,  int num_iterations)
+Matrix *ML_LinearOps::Optimize(Matrix &initial_params,  int num_iterations)
 {
 	int iteration_idx = 0;
 	float min_constant = this->alpha * (1/((float) this->numTrainingExamples));

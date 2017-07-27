@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <fstream>
-#include "../../OpenCL/include/opencl_driver.hpp"
 
 /* Used to index into the array */
 class Indexer

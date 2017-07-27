@@ -10,8 +10,6 @@
 #define ml_hpp
 
 #include <stdio.h>
-#include "../../LinearAlgebraLibrary/include/2DMatrix.hpp"
-#include "../../MachineLearningLibrary.hpp"
 
 /* Linear Regression Machine Learning Operations */
 class ML_LinearOps: public MachineLearningFitModel
@@ -26,7 +24,12 @@ public:
 	/* Explanations for these functions can be found in the master file, MachineLearningLibrary.hpp */
 	float computeCost(Matrix &parameters_to_evaluate);
 	Matrix *gradientCalculate(Matrix &params_to_derivate);
-	Matrix *GradientDescent(Matrix &initial_params,  int num_iterations);
+	Matrix *Optimize(Matrix &initial_params,  int num_iterations);
 	Matrix *Predict(Matrix &input_to_evaluate, Matrix &parameters, float threshold);
+
+	inline fit_category GetCategoryOfFit()
+	{
+		return LINEAR_REGRESSION_MODEL;
+	}
 };
 #endif /* ml_hpp */

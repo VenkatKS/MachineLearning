@@ -6,6 +6,7 @@
 //  Copyright © 2017 Venkat Srinivasan. All rights reserved.
 //
 
+#include "LinearAlgebraLibrary/include/2DMatrix.hpp"
 #include "MachineLearningLibrary.hpp"
 #include "RegressionClassificationLibrary/include/ml_regression.hpp"
 #include "RegressionClassificationLibrary/include/ml_classification.hpp"
@@ -23,11 +24,7 @@ MachineLearning::MachineLearning(LinearRegressionFit &model)
  */
 MachineLearning::MachineLearning(LogisiticClassificationFit &model)
 {
-	if (model.numCategories > 1) {
-		data_model = new ML_SingleLogOps(model.data, model.learning_rate, model.regularization_rate);
-	} else {
-		data_model = new ML_MultiLogOps(model.data, model.learning_rate, model.regularization_rate, model.numCategories);
-	}
+	data_model = new ML_SingleLogOps(model.data, model.learning_rate, model.regularization_rate, model.numCategories);
 }
 
 /*

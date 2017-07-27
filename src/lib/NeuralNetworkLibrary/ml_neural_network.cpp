@@ -6,8 +6,11 @@
 //  Copyright © 2017 Venkat Srinivasan. All rights reserved.
 //
 
+#include "../LinearAlgebraLibrary/include/2DMatrix.hpp"
+#include "../MachineLearningLibrary.hpp"
+#include "../RegressionClassificationLibrary/include/ml_classification.hpp"
 #include "include/ml_neural_network.hpp"
-#include "ml_classification.hpp"
+
 
 
 

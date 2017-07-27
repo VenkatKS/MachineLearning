@@ -10,7 +10,8 @@
 #include <cassert>
 #include <complex>
 #include <thread>
-
+#include "../LinearAlgebraLibrary/include/2DMatrix.hpp"
+#include "../MachineLearningLibrary.hpp"
 #include "include/ml_classification.hpp"
 
 #define DEBUGGING 0
@@ -138,7 +139,7 @@ Matrix *ML_SingleLogOps::gradientCalculateInternal(Matrix &params_to_derivate)
 /* Regularization Operations */
 float ML_SingleLogOps::computeCost(Matrix &parameters_to_evaluate)
 {
-	float unregularizedCost = ML_SingleLogOps::computeCostInternal(parameters_to_evaluate);
+	float unregularizedCost = this->computeCostInternal(parameters_to_evaluate);
 	float regFactor = (float) ((float) lambda) / ((float) (2 * numTrainingExamples));
 	Matrix &temp_theta = (*new Matrix(parameters_to_evaluate));
 
@@ -164,7 +165,7 @@ float ML_SingleLogOps::computeCost(Matrix &parameters_to_evaluate)
 
 Matrix *ML_SingleLogOps::gradientCalculate(Matrix &params_to_derivate)
 {
-	Matrix &unregularizedGradients = (*ML_SingleLogOps::gradientCalculateInternal(params_to_derivate));
+	Matrix &unregularizedGradients = (*this->gradientCalculateInternal(params_to_derivate));
 	Matrix &temp_theta = (*new Matrix(params_to_derivate));
 	float regFactor = (float) ((float) lambda) / ((float) (numTrainingExamples));
 
@@ -182,7 +183,7 @@ Matrix *ML_SingleLogOps::gradientCalculate(Matrix &params_to_derivate)
 	return regularizedGradients;
 }
 
-Matrix *ML_SingleLogOps::GradientDescent(Matrix &initial_params,  int num_iterations)
+Matrix *ML_SingleLogOps::Optimize(Matrix &initial_params,  int num_iterations)
 {
 	/* myTheta = myTheta - ((alpha/m) * X' * (sigmoid(X * myTheta) - y)); */
 
@@ -196,10 +197,10 @@ Matrix *ML_SingleLogOps::GradientDescent(Matrix &initial_params,  int num_iterat
 
 	for (iteration_idx = 0; iteration_idx < num_iterations; iteration_idx++)
 	{
-		Matrix *nextGradient = ML_SingleLogOps::gradientCalculate(*result);
+		Matrix *nextGradient = this->gradientCalculate(*result);
 #if DEBUGGING
 		/* When debugging, verify that gradient descent is actually decreasing/not increasing the cost */
-		float currentCost = ML_LogOps::computeCost(training_X, training_y, theta, regularizationParam);
+		float currentCost = this->computeCost(training_X, training_y, theta, regularizationParam);
 		assert (!((iteration_idx > 0) && (prevCost < currentCost)));
 		prevCost = currentCost;
 #endif
@@ -230,7 +231,7 @@ Matrix *ML_SingleLogOps::Predict(Matrix &input_to_evaluate, Matrix &parameters, 
 }
 
 /* Class IDs are in order */
-Matrix *ML_MultiLogOps::OneVsAll(int num_iterations)
+Matrix *ML_SingleLogOps::OneVsAll(int num_iterations)
 {
 	int class_idx = 0;
 	int feature_idx = 0;
@@ -248,7 +249,10 @@ Matrix *ML_MultiLogOps::OneVsAll(int num_iterations)
 		Matrix *temp_y = new Matrix(*this->data_y);
 		Matrix *currentTheta = new Matrix(this->numTrainingFeatures + 1, 1);
 		temp_y->operateOnMatrixValues(class_idx, BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_EQUAL_TO_SCALAR);
-		Matrix *theta_idx = this->GradientDescent(*currentTheta, num_iterations);
+		Matrix *temp_matrix = this->data_y;
+		this->data_y = temp_y;
+		Matrix *theta_idx = this->Optimize(*currentTheta, num_iterations);
+		this->data_y = temp_matrix;
 		all_theta[class_idx] = theta_idx;
 		delete temp_y;
 		delete currentTheta;
@@ -269,12 +273,12 @@ Matrix *ML_MultiLogOps::OneVsAll(int num_iterations)
 	return &return_matrix;
 }
 
-Matrix *ML_MultiLogOps::PredictOneVsAll(Matrix &training_X, Matrix &all_parameters)
+Matrix *ML_SingleLogOps::PredictOneVsAll(Matrix &all_parameters)
 {
-	Matrix &X = (*new Matrix(training_X));
+	Matrix &X = (*new Matrix(*this->data_x));
 	X.AddBiasCol();
 	Matrix *hypothesis = X * all_parameters;
-	Matrix *predict = ML_MultiLogOps::sigmoid(*hypothesis);
+	Matrix *predict = this->sigmoid(*hypothesis);
 	predict->Transpose();
 	Matrix *end = predict->MaxRowNumber();
 	return end;
