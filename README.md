@@ -18,6 +18,22 @@ The algorithm teaches itself the various hand-written digits using the included 
 <p>
 The demostration has about a 75% accuracy, and this is mainly because it uses a logistic gradient descent approach of about 50 iterations (alpha of 0.01, and regularization lambda of 0.01). Tweaking these parameters to get better results using a cross-verification set and a learning curve will yield significantly better results. As will implementing the algorithm using neural networks. TBD.
 </p>
+## Progress
+* Linear Algebra Library (Done)
+  * Fully functional and ground-up Matrix class (Done)
+* Linear Regression (Done)
+  * Single parameter regression (Done)
+  * Multi parameter regression (Done)
+* Logistic Classification (Done)
+  * Single parameter, single output category classification (Done)
+  * Multi parameter, single output category classification (Done)
+  * Multi parameter, multi output category classiciation (Done)
+* Neural Networks (TDB)
+* Support Vector Machines (TBD)
+* Optimizations
+  * Vectorize Matrix arithmetic (Done)
+  * Use OPENCL to accelerate matrix arithmeic (Done)
+  * Vectorize and use OPENCL to accelerate gradient descent for regression/classfication (TBD)
 
 
 ## Linear Algebra Library
