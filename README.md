@@ -20,20 +20,21 @@ The demostration has about a 75% accuracy, and this is mainly because it uses a 
 </p>
 ## Progress
 * Linear Algebra Library (Done)
-  * Fully functional and ground-up Matrix class (Done)
+  * ~~Fully functional and ground-up Matrix class~~ (Done)
 * Linear Regression (Done)
-  * Single parameter regression (Done)
-  * Multi parameter regression (Done)
+  * ~~Single parameter regression~~ (Done)
+  * ~~Multi parameter regression~~ (Done)
 * Logistic Classification (Done)
-  * Single parameter, single output category classification (Done)
-  * Multi parameter, single output category classification (Done)
-  * Multi parameter, multi output category classiciation (Done)
+  * ~~Single parameter, single output category classification~~ (Done)
+  * ~~Multi parameter, single output category classification~~ (Done)
+  * ~~Multi parameter, multi output category classiciation~~ (Done)
 * Neural Networks (TDB)
 * Support Vector Machines (TBD)
 * Optimizations
-  * Vectorize Matrix arithmetic (Done)
-  * Use OPENCL to accelerate matrix arithmeic (Done)
-  * Vectorize and use OPENCL to accelerate gradient descent for regression/classfication (TBD)
+  * OPENCL Acceleration
+    * ~~Vectorize Matrix arithmetic~~ (Done)
+    * ~~Use OPENCL to accelerate matrix arithmeic~~ (Done)
+    * Vectorize and use OPENCL to accelerate gradient descent for regression/classfication (TBD)
 
 
 ## Linear Algebra Library
