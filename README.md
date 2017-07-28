@@ -29,6 +29,7 @@ The demostration has about a 75% accuracy, and this is mainly because it uses a 
   * ~~Single parameter, single output category classification~~ (Done)
   * ~~Multi parameter, single output category classification~~ (Done)
   * ~~Multi parameter, multi output category classiciation~~ (Done)
+    * ~~One v. All Implementation~~ (Done)
 * Neural Networks (TDB)
 * Support Vector Machines (TBD)
 * Optimizations
