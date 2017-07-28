@@ -6,11 +6,11 @@ This repository contains a simple machine learning library with a collection of 
 I've developed a quick and dirty handwriting recognition algorithm using this machine learning library and using the MNIST handwritten digits database. The code for this can be found under src/demo/handwriting_recognition. Here are a couple of screenshots:
 
 <p align="center">
-<img src="https://github.com/VenkatKS/MachineLearning/blob/master/src/demo/handwriting_recognition/screenshots/digit7?raw=true" alt="Digit 7 Prediction" width="50%" height="50%"/>
+<img src="https://github.com/VenkatKS/MachineLearning/blob/master/src/demo/handwriting_recognition/screenshots/digit7.png?raw=true" alt="Digit 7 Prediction" width="50%" height="50%"/>
 </p>
 
 <p align="center">
-<img src="https://github.com/VenkatKS/MachineLearning/blob/master/src/demo/handwriting_recognition/screenshots/digit4?raw=true" alt="Digit 4 Prediction" width="50%" height="50%"/>
+<img src="https://github.com/VenkatKS/MachineLearning/blob/master/src/demo/handwriting_recognition/screenshots/digit4.png?raw=true" alt="Digit 4 Prediction" width="50%" height="50%"/>
 </p>
 The algorithm teaches itself the various handwritings using the included MNIST database of handwritten digits and then tries its hand at predicting a test set. You can start the process by clicking "learn" (it'll take a while) and then using the "Next" button to scroll through the images included in the MNIST database and see the actual value of those digits (under the label "Actual") and what the algorithm thinks the digit is (under the label "Predicted").
 
