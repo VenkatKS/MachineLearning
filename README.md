@@ -22,6 +22,7 @@ The demostration has about a 75% accuracy, and this is mainly because it uses a 
 ## Progress
 * Linear Algebra Library (Done)
   * ~~Fully functional and ground-up Matrix class~~ (Done)
+* Polynomial Regression (TBD)
 * Linear Regression (Done)
   * ~~Single parameter regression~~ (Done)
   * ~~Multi parameter regression~~ (Done)
