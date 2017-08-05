@@ -32,6 +32,9 @@ The demostration has about a 75% accuracy, and this is mainly because it uses a 
   * ~~Multi parameter, multi output category classiciation~~ (Done)
     * ~~One v. All Implementation~~ (Done)
 * Neural Networks (TDB)
+  * Architecture Model Flexibility (TBD)
+  * Back Propagation (TBD)
+  * Forward Propagation (TBD)
 * Support Vector Machines (TBD)
 * Optimizations
   * OPENCL Acceleration
