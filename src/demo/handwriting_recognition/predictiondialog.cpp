@@ -1,5 +1,3 @@
-#include "predictiondialog.h"
-#include "ui_predictiondialog.h"
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -16,19 +14,19 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QFileInfo>
+#include <QThreadPool>
+#include <QProgressBar>
+#include "predictiondialog.h"
+#include "ui_predictiondialog.h"
 
 static bool learned = false;
 static int idx = 0;
-static Matrix *All_Matrix;
-static Matrix *All_Solutions;
-static Matrix *temp_y;
-static unsigned char** imgs;
-static unsigned char* labels;
-int numImages;
-int numLabels;
-int imgSize;
-int imgrows;
-int imgcols;
+
+static float learningRate = 0.01;
+static float regularizationRate = 0.01;
+
+LearningThread *workerThread;
+InformationPackage *ImageDeliverables;
 
 unsigned char** read_mnist_images(std::string full_path, int& number_of_images, int& image_size, int& img_rows, int& img_cols) {
     auto reverseInt = [](int i) {
@@ -99,6 +97,73 @@ unsigned char* read_mnist_labels(std::string full_path, int& number_of_labels) {
     }
 }
 
+void LearningThread::run() {
+     this->deliverables->imgs = read_mnist_images(imgFileName->toUtf8().constData(), this->deliverables->numImages, this->deliverables->imgSize, this->deliverables->imgrows, this->deliverables->imgcols);
+     this->deliverables->labels = read_mnist_labels(labelFileName->toUtf8().constData(), this->deliverables->numLabels);
+
+    int numImages = this->deliverables->numImages;
+    int imgSize = this->deliverables->imgSize;
+
+     this->deliverables->All_Matrix = new Matrix(this->deliverables->numImages, this->deliverables->imgSize);
+     this->deliverables->All_Solutions = new Matrix(numImages, 1);
+     for (int i = 0; i < numImages; i++)
+     {
+         for (int j = 0; j < imgSize; j++)
+         {
+             Indexer *myIndex = new Indexer(i, j);
+             (*this->deliverables->All_Matrix)[myIndex] = (float) (this->deliverables->imgs[i])[j];
+             delete myIndex;
+         }
+     }
+     for (int i = 0; i < numImages; i++)
+     {
+         (*this->deliverables->All_Solutions)[i] = (float) (this->deliverables->labels[i]);
+     }
+    progress->setValue(20);
+     /* Create our machine learning object using the loaded data as our operating data set */
+     DataSetWrapper *test_wrapper = new DataSetWrapper(this->deliverables->All_Matrix, this->deliverables->All_Solutions);
+
+     /* Create a linear regression fit model */
+     progress->setValue(30);
+     LogisiticClassificationFit *logfit = new LogisiticClassificationFit(test_wrapper, 10, learningRate, regularizationRate);
+     MachineLearning *logisticOperations = new MachineLearning(*logfit);
+     ML_SingleLogOps *multi_ops = (ML_SingleLogOps *) logisticOperations->Algorithms();
+     progress->setValue(35);
+     Matrix *all_theta = multi_ops->OneVsAll(50);
+     progress->setValue(40);
+     this->deliverables->predicted_results = multi_ops->PredictOneVsAll(*all_theta);
+     progress->setValue(60);
+     this->deliverables->predicted_results->Transpose();
+     progress->setValue(70);
+     Matrix *my_results = new Matrix(*this->deliverables->predicted_results);
+     my_results->operateOnMatrixValues(this->deliverables->All_Solutions, BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_EQUAL_TO_SCALAR);
+     progress->setValue(80);
+     Matrix *result = my_results->Mean();
+     assert (result->numCols() == 1);
+     assert (result->numRows() == 1);
+
+     const QImage *newImage = new QImage((uchar*)this->deliverables->imgs[idx], this->deliverables->imgcols, this->deliverables->imgrows, this->deliverables->imgcols, QImage::Format_Indexed8);
+
+     QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap::fromImage(*newImage));
+     QGraphicsScene* scene = new QGraphicsScene();
+     scene->addItem(item);
+     graphicsView->setScene(scene);
+     graphicsView->show();
+     graphicsView->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
+     char predicted[30];
+     char actual[30];
+     char accuracy[30];
+
+     sprintf(predicted, "Actual: %d", this->deliverables->labels[idx]);
+     actualLabel->setText(QString(predicted));
+     sprintf(accuracy, "Overall Accuracy: %f (%d out of %d)", (*result)[0], (int) ((*result)[0] * numImages), numImages);
+     statusLabel->setText(accuracy);
+     sprintf(actual, "Predicted: %f", (*this->deliverables->predicted_results)[idx]);
+     predictedLabel->setText(QString(actual));
+     progress->setValue(100);
+
+     return;
+ }
 
 PredictionDialog::PredictionDialog(QWidget *parent) :
     QDialog(parent),
@@ -119,7 +184,10 @@ void PredictionDialog::on_pushButton_clicked()
     QLabel *actualLabel = this->findChild<QLabel*>("actualLabel");
     QLabel *predictedLabel = this->findChild<QLabel*>("predictedLabel");
     QPushButton *pushButton = this->findChild<QPushButton*>("pushButton");
+    QProgressBar *progress = this->findChild<QProgressBar*>("learningBar");
     QMessageBox messageBox;
+
+    ImageDeliverables = new InformationPackage();
 
     QGraphicsView *graphicsView = this->findChild<QGraphicsView*>("imageView");
 
@@ -160,60 +228,9 @@ void PredictionDialog::on_pushButton_clicked()
 
     statusLabel->setText("Currently studying 10,000 images....");
     enableButton->setEnabled(true);
-
-    imgs = read_mnist_images(imgFileName.toUtf8().constData(), numImages, imgSize, imgrows, imgcols);
-    labels = read_mnist_labels(labelFileName.toUtf8().constData(), numLabels);
-
-    All_Matrix = new Matrix(numImages, imgSize);
-    All_Solutions = new Matrix(numImages, 1);
-    for (int i = 0; i < numImages; i++)
-    {
-        for (int j = 0; j < imgSize; j++)
-        {
-            Indexer *myIndex = new Indexer(i, j);
-            (*All_Matrix)[myIndex] = (float) (imgs[i])[j];
-            delete myIndex;
-        }
-    }
-    for (int i = 0; i < numImages; i++)
-    {
-        (*All_Solutions)[i] = (float) (labels[i]);
-    }
-
-    /* Create our machine learning object using the loaded data as our operating data set */
-    DataSetWrapper *test_wrapper = new DataSetWrapper(All_Matrix, All_Solutions);
-
-    /* Create a linear regression fit model */
-    LogisiticClassificationFit *logfit = new LogisiticClassificationFit(test_wrapper, 10, 0.01, 0.01);
-    MachineLearning *logisticOperations = new MachineLearning(*logfit);
-    ML_SingleLogOps *multi_ops = (ML_SingleLogOps *) logisticOperations->Algorithms();
-    Matrix *all_theta = multi_ops->OneVsAll(50);
-    temp_y = multi_ops->PredictOneVsAll(*all_theta);
-    temp_y->Transpose();
-    Matrix *my_results = new Matrix(*temp_y);
-    my_results->operateOnMatrixValues(All_Solutions, BOOLEAN_OP_IS_EVERY_MATRIX_ELEMENT_EQUAL_TO_SCALAR);
-    Matrix *result = my_results->Mean();
-    assert (result->numCols() == 1);
-    assert (result->numRows() == 1);
-
-    const QImage *newImage = new QImage((uchar*)imgs[idx], imgcols, imgrows, imgcols, QImage::Format_Indexed8);
-
-    QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap::fromImage(*newImage));
-    QGraphicsScene* scene = new QGraphicsScene();
-    scene->addItem(item);
-    graphicsView->setScene(scene);
-    graphicsView->show();
-    graphicsView->fitInView(scene->sceneRect(), Qt::KeepAspectRatio);
-    char predicted[30];
-    char actual[30];
-    char accuracy[30];
-
-    sprintf(predicted, "Actual: %d", labels[idx]);
-    sprintf(actual, "Predicted: %f", (*temp_y)[idx]);
-    sprintf(accuracy, "Overall Accuracy: %f (%d out of %d)", (*result)[0], (int) ((*result)[0] * numImages), numImages);
-    actualLabel->setText(QString(predicted));
-    predictedLabel->setText(QString(actual));
-    statusLabel->setText(accuracy);
+    progress->setValue(0);
+    workerThread = new LearningThread(ImageDeliverables, graphicsView, &imgFileName, &labelFileName, actualLabel, predictedLabel, statusLabel, progress);
+    QThreadPool::globalInstance()->start(workerThread);
 
     pushButton->setEnabled(false);
 }
@@ -228,7 +245,7 @@ void PredictionDialog::on_nextButton_clicked()
     QLabel *predictedLabel = this->findChild<QLabel*>("predictedLabel");
     QGraphicsView *graphicsView = this->findChild<QGraphicsView*>("imageView");
 
-    const QImage *newImage = new QImage((uchar*)imgs[idx], imgcols, imgrows, imgcols, QImage::Format_Indexed8);
+    const QImage *newImage = new QImage((uchar*)ImageDeliverables->imgs[idx], ImageDeliverables->imgcols, ImageDeliverables->imgrows, ImageDeliverables->imgcols, QImage::Format_Indexed8);
 
     QGraphicsPixmapItem* item = new QGraphicsPixmapItem(QPixmap::fromImage(*newImage));
     QGraphicsScene* scene = new QGraphicsScene();
@@ -241,9 +258,23 @@ void PredictionDialog::on_nextButton_clicked()
     char predicted[30];
     char actual[30];
 
-    sprintf(predicted, "Actual: %d", labels[idx]);
-    sprintf(actual, "Predicted: %f", (*temp_y)[idx]);
+    sprintf(predicted, "Actual: %d", ImageDeliverables->labels[idx]);
+    sprintf(actual, "Predicted: %f", (*ImageDeliverables->predicted_results)[idx]);
 
     actualLabel->setText(QString(predicted));
     predictedLabel->setText(QString(actual));
+}
+
+void PredictionDialog::on_horizontalSlider_sliderMoved(int position)
+{
+    QLabel *rateLabel = this->findChild<QLabel*>("learningRateLabel");
+    learningRate = 0.01 * position;
+    char actual[30];
+
+    sprintf(actual, "%0.2f", learningRate);
+
+    QString newRate("Learning Rate: ");
+    newRate.append(actual);
+    rateLabel->setText(newRate);
+
 }
