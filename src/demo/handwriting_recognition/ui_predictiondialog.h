@@ -21,6 +21,7 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QRadioButton>
 #include <QtWidgets/QSlider>
+#include <QtWidgets/QSpinBox>
 
 QT_BEGIN_NAMESPACE
 
@@ -39,10 +40,13 @@ public:
     QLabel *label_2;
     QLabel *learningRateLabel;
     QSlider *horizontalSlider;
-    QLabel *label_4;
+    QLabel *regRateLabel;
     QSlider *horizontalSlider_2;
     QProgressBar *learningBar;
     QLabel *label_5;
+    QLabel *label_3;
+    QSpinBox *iterationCount;
+    QLabel *label_4;
 
     void setupUi(QDialog *PredictionDialog)
     {
@@ -89,9 +93,9 @@ public:
         horizontalSlider->setObjectName(QStringLiteral("horizontalSlider"));
         horizontalSlider->setGeometry(QRect(40, 50, 101, 16));
         horizontalSlider->setOrientation(Qt::Horizontal);
-        label_4 = new QLabel(PredictionDialog);
-        label_4->setObjectName(QStringLiteral("label_4"));
-        label_4->setGeometry(QRect(10, 70, 141, 16));
+        regRateLabel = new QLabel(PredictionDialog);
+        regRateLabel->setObjectName(QStringLiteral("regRateLabel"));
+        regRateLabel->setGeometry(QRect(10, 70, 141, 16));
         horizontalSlider_2 = new QSlider(PredictionDialog);
         horizontalSlider_2->setObjectName(QStringLiteral("horizontalSlider_2"));
         horizontalSlider_2->setGeometry(QRect(40, 90, 101, 16));
@@ -103,6 +107,18 @@ public:
         label_5 = new QLabel(PredictionDialog);
         label_5->setObjectName(QStringLiteral("label_5"));
         label_5->setGeometry(QRect(439, 460, 121, 20));
+        label_3 = new QLabel(PredictionDialog);
+        label_3->setObjectName(QStringLiteral("label_3"));
+        label_3->setGeometry(QRect(10, 110, 171, 21));
+        iterationCount = new QSpinBox(PredictionDialog);
+        iterationCount->setObjectName(QStringLiteral("iterationCount"));
+        iterationCount->setGeometry(QRect(80, 130, 48, 24));
+        iterationCount->setMinimum(1);
+        iterationCount->setMaximum(200);
+        iterationCount->setValue(50);
+        label_4 = new QLabel(PredictionDialog);
+        label_4->setObjectName(QStringLiteral("label_4"));
+        label_4->setGeometry(QRect(10, 130, 71, 21));
 
         retranslateUi(PredictionDialog);
 
@@ -122,8 +138,10 @@ public:
         radioButton_2->setText(QApplication::translate("PredictionDialog", "Neural Networks", Q_NULLPTR));
         label_2->setText(QApplication::translate("PredictionDialog", "Parameters:", Q_NULLPTR));
         learningRateLabel->setText(QApplication::translate("PredictionDialog", "Learning Rate: 0.01", Q_NULLPTR));
-        label_4->setText(QApplication::translate("PredictionDialog", "Regularization: 0.01", Q_NULLPTR));
+        regRateLabel->setText(QApplication::translate("PredictionDialog", "Regularization: 0.01", Q_NULLPTR));
         label_5->setText(QApplication::translate("PredictionDialog", "Learning Progress:", Q_NULLPTR));
+        label_3->setText(QApplication::translate("PredictionDialog", "Gradient Descent:", Q_NULLPTR));
+        label_4->setText(QApplication::translate("PredictionDialog", "Iterations:", Q_NULLPTR));
     } // retranslateUi
 
 };

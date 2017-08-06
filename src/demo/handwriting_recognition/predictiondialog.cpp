@@ -18,12 +18,15 @@
 #include <QProgressBar>
 #include "predictiondialog.h"
 #include "ui_predictiondialog.h"
+#include <QSlider>
+#include <QSpinBox>
 
 static bool learned = false;
 static int idx = 0;
 
 static float learningRate = 0.01;
 static float regularizationRate = 0.01;
+static float iterations = 50;
 
 LearningThread *workerThread;
 InformationPackage *ImageDeliverables;
@@ -129,7 +132,7 @@ void LearningThread::run() {
      MachineLearning *logisticOperations = new MachineLearning(*logfit);
      ML_SingleLogOps *multi_ops = (ML_SingleLogOps *) logisticOperations->Algorithms();
      progress->setValue(35);
-     Matrix *all_theta = multi_ops->OneVsAll(50);
+     Matrix *all_theta = multi_ops->OneVsAll(iterations);
      progress->setValue(40);
      this->deliverables->predicted_results = multi_ops->PredictOneVsAll(*all_theta);
      progress->setValue(60);
@@ -162,6 +165,7 @@ void LearningThread::run() {
      predictedLabel->setText(QString(actual));
      progress->setValue(100);
 
+     enableButton->setEnabled(true);
      return;
  }
 
@@ -185,6 +189,10 @@ void PredictionDialog::on_pushButton_clicked()
     QLabel *predictedLabel = this->findChild<QLabel*>("predictedLabel");
     QPushButton *pushButton = this->findChild<QPushButton*>("pushButton");
     QProgressBar *progress = this->findChild<QProgressBar*>("learningBar");
+    QSlider *regRateSlider = this->findChild<QSlider*>("horizontalSlider");
+    QSlider *learningRateSlider = this->findChild<QSlider*>("horizontalSlider_2");
+    QSpinBox *iterationCount = this->findChild<QSpinBox*>("iterationCount");
+
     QMessageBox messageBox;
 
     ImageDeliverables = new InformationPackage();
@@ -225,11 +233,12 @@ void PredictionDialog::on_pushButton_clicked()
         int ret = messageBox.exec();
         return;
     }
-
+    regRateSlider->setEnabled(false);
+    learningRateSlider->setEnabled(false);
+    iterationCount->setEnabled(false);
     statusLabel->setText("Currently studying 10,000 images....");
-    enableButton->setEnabled(true);
     progress->setValue(0);
-    workerThread = new LearningThread(ImageDeliverables, graphicsView, &imgFileName, &labelFileName, actualLabel, predictedLabel, statusLabel, progress);
+    workerThread = new LearningThread(ImageDeliverables, enableButton, graphicsView, &imgFileName, &labelFileName, actualLabel, predictedLabel, statusLabel, progress);
     QThreadPool::globalInstance()->start(workerThread);
 
     pushButton->setEnabled(false);
@@ -277,4 +286,22 @@ void PredictionDialog::on_horizontalSlider_sliderMoved(int position)
     newRate.append(actual);
     rateLabel->setText(newRate);
 
+}
+
+void PredictionDialog::on_horizontalSlider_2_sliderMoved(int position)
+{
+    QLabel *rateLabel = this->findChild<QLabel*>("regRateLabel");
+    regularizationRate = 0.01 * position;
+    char actual[30];
+
+    sprintf(actual, "%0.2f", regularizationRate);
+
+    QString newRate("Regularization: ");
+    newRate.append(actual);
+    rateLabel->setText(newRate);
+}
+
+void PredictionDialog::on_iterationCount_valueChanged(int arg1)
+{
+    iterations = arg1;
 }

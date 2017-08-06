@@ -8,6 +8,7 @@
 #include <QRunnable>
 #include <QProgressBar>
 #include <nML/2DMatrix.hpp>
+#include <QPushButton>
 
 namespace Ui {
 class PredictionDialog;
@@ -31,6 +32,7 @@ public:
 class LearningThread : public QRunnable {
 public:
     InformationPackage *deliverables;
+    QPushButton *enableButton;
     QGraphicsView *graphicsView;
     QString *imgFileName;
     QString *labelFileName;
@@ -39,8 +41,9 @@ public:
     QLabel *statusLabel;
     QProgressBar *progress;
 
-    LearningThread(InformationPackage *deliver, QGraphicsView *view, QString *imgFile, QString *labelFile, QLabel *actual, QLabel *predicted, QLabel *status, QProgressBar *progressBar)
+    LearningThread(InformationPackage *deliver, QPushButton *enable, QGraphicsView *view, QString *imgFile, QString *labelFile, QLabel *actual, QLabel *predicted, QLabel *status, QProgressBar *progressBar)
     {
+        this->enableButton = enable;
         this->deliverables = deliver;
         this->graphicsView = view;
         this->imgFileName = new QString(*imgFile);
@@ -68,6 +71,10 @@ private slots:
     void on_nextButton_clicked();
 
     void on_horizontalSlider_sliderMoved(int position);
+
+    void on_horizontalSlider_2_sliderMoved(int position);
+
+    void on_iterationCount_valueChanged(int arg1);
 
 private:
     Ui::PredictionDialog *ui;

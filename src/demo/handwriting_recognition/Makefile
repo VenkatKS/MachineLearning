@@ -687,6 +687,19 @@ compiler_moc_header_clean:
 	-$(DEL_FILE) moc_predictiondialog.cpp
 moc_predictiondialog.cpp: ../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QDialog \
 		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qdialog.h \
+		../../../../Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QThread \
+		../../../../Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qthread.h \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QGraphicsView \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qgraphicsview.h \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QLabel \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qlabel.h \
+		../../../../Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QRunnable \
+		../../../../Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qrunnable.h \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QProgressBar \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qprogressbar.h \
+		nML/nML/2DMatrix.hpp \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QPushButton \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qpushbutton.h \
 		predictiondialog.h \
 		moc_predefs.h \
 		../../../../Qt/5.9.1/clang_64/bin/moc
@@ -716,15 +729,24 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean compiler_ui
 main.o: main.cpp predictiondialog.h \
 		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QDialog \
 		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qdialog.h \
+		../../../../Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QThread \
+		../../../../Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qthread.h \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QGraphicsView \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qgraphicsview.h \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QLabel \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qlabel.h \
+		../../../../Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QRunnable \
+		../../../../Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qrunnable.h \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QProgressBar \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qprogressbar.h \
+		nML/nML/2DMatrix.hpp \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QPushButton \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qpushbutton.h \
 		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QApplication \
 		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qapplication.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
-predictiondialog.o: predictiondialog.cpp predictiondialog.h \
-		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QDialog \
-		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qdialog.h \
-		ui_predictiondialog.h \
-		nML/nML/2DMatrix.hpp \
+predictiondialog.o: predictiondialog.cpp nML/nML/2DMatrix.hpp \
 		nML/nML/MachineLearningLibrary.hpp \
 		nML/nML/ml_classification.hpp \
 		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QLabel \
@@ -736,7 +758,27 @@ predictiondialog.o: predictiondialog.cpp predictiondialog.h \
 		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QMessageBox \
 		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qmessagebox.h \
 		../../../../Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QFileInfo \
-		../../../../Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qfileinfo.h
+		../../../../Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qfileinfo.h \
+		../../../../Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QThreadPool \
+		../../../../Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qthreadpool.h \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QProgressBar \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qprogressbar.h \
+		predictiondialog.h \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QDialog \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qdialog.h \
+		../../../../Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QThread \
+		../../../../Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qthread.h \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QGraphicsView \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qgraphicsview.h \
+		../../../../Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/QRunnable \
+		../../../../Qt/5.9.1/clang_64/lib/QtCore.framework/Headers/qrunnable.h \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QPushButton \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qpushbutton.h \
+		ui_predictiondialog.h \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QSlider \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qslider.h \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/QSpinBox \
+		../../../../Qt/5.9.1/clang_64/lib/QtWidgets.framework/Headers/qspinbox.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o predictiondialog.o predictiondialog.cpp
 
 moc_predictiondialog.o: moc_predictiondialog.cpp 

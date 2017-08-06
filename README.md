@@ -16,7 +16,7 @@ I've developed a quick and dirty handwriting recognition algorithm using this ma
 The algorithm teaches itself the various hand-written digits using the included MNIST database of handwritten digits and then tries to predict a test set. You can start the process by clicking "Learn" (it'll take a while) and then using the "Next" button to scroll through the images included in the MNIST database and see the actual value of those digits (under the label "Actual") and what the algorithm thinks the digit is (under the label "Predicted").
 </p>
 <p>
-The demostration has about a 75% accuracy, and this is mainly because it uses a logistic gradient descent approach of about 50 iterations (alpha of 0.01, and regularization lambda of 0.01). Tweaking these parameters to get better results using a cross-verification set and a learning curve will yield significantly better results. As will implementing the algorithm using neural networks. TBD.
+The demostration has about a 75% accuracy, and this is mainly because it uses a logistic gradient descent approach of about 50 iterations (alpha of 0.01, and regularization lambda of 0.01). Tweaking these parameters using the demo's sliders and spinboxes to get better results using a cross-verification set and a learning curve will yield significantly better results. As will using the neural network algorithm instead of the logistic regression algorithm. TBD.
 </p>
 
 ## Progress
